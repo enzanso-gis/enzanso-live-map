@@ -1,0 +1,11 @@
+{
+"type": "FeatureCollection",
+"name": "SELECT",
+"xy_coordinate_resolution": 1e-06,
+"features": [
+{ "type": "Feature", "properties": { "name": "た", "status": "い", "photo": "PXL_20260314_150126360.jpg" }, "geometry": null },
+{ "type": "Feature", "properties": { "name": "B", "status": "34", "photo": "PXL_20260314_023255026.jpg" }, "geometry": null },
+{ "type": "Feature", "properties": { "name": "C", "status": "43", "photo": "PXL_20260306_013320237.jpg" }, "geometry": null },
+{ "type": "Feature", "properties": { "name": "D", "status": "72", "photo": "PXL_20260301_070404960.jpg" }, "geometry": null }
+]
+}
