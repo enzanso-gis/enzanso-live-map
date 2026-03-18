@@ -20,13 +20,6 @@
             transition: transform 0.3s ease;
         }
         
-        #mobile-toggle {
-            display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 2000; background: #2c3e50; color: white; border: none; padding: 12px 24px;
-            border-radius: 30px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        /* ★変更：凡例を「右下」に移動し、重なりを完全に解消 */
         #legend-panel {
             position: absolute; bottom: 20px; right: 10px; z-index: 1000;
             background: rgba(255, 255, 255, 0.95); padding: 12px; border-radius: 8px;
@@ -34,15 +27,30 @@
             max-height: 80vh; overflow-y: auto;
         }
 
+        /* ★変更：スマホ用ボタンのデザインと配置を最適化 */
+        .mobile-btn {
+            display: none; position: absolute; bottom: 20px; z-index: 2000;
+            background: #2c3e50; color: white; border: none; padding: 12px 20px;
+            border-radius: 30px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+
         @media (max-width: 600px) {
+            /* メニューボタンを左下、凡例ボタンを右下に配置 */
+            #btn-menu { display: block; left: 10px; }
+            #btn-legend { display: block; right: 10px; }
+            
             #ui-panel {
                 top: auto; bottom: 80px; left: 50%; transform: translateX(-50%);
-                width: 90%; max-height: 60vh; display: none;
+                width: 90%; max-height: 60vh; display: none; /* 初期非表示 */
             }
             #ui-panel.show { display: block; }
-            #mobile-toggle { display: block; }
-            /* スマホ版でも右下に配置 */
-            #legend-panel { bottom: 80px; right: 10px; max-height: 40vh; }
+            
+            #legend-panel { 
+                bottom: 80px; right: 10px; max-height: 40vh; display: none; /* 初期非表示 */
+            }
+            #legend-panel.show { display: block; }
+            
             .leaflet-control-zoom { display: none; }
         }
 
@@ -61,7 +69,8 @@
 </head>
 <body>
 
-<button id="mobile-toggle" onclick="toggleMenu()">⚙️ メニュー / 絞り込み</button>
+<button id="btn-menu" class="mobile-btn" onclick="toggleMenu()">⚙️ メニュー</button>
+<button id="btn-legend" class="mobile-btn" onclick="toggleLegend()">📖 凡例</button>
 
 <div id="ui-panel">
     <h3>🔍 絞り込み ＆ 表示切り替え</h3>
@@ -108,7 +117,6 @@
             <option value="36.3355, 137.6800, 18">🏕️ ヒュッテ西岳</option>
             <option value="36.3378, 137.6550, 18">🏕️ ヒュッテ大槍</option>
             <option value="36.3936, 137.7268, 19">🏕️ 合戦小屋（かっせんごや）</option>
-            <option value="35.91569751262187, 139.65840886944108, 19">🏕️ その他</option>
         </select>
         <button class="jump-btn" onclick="executeJump()">この場所へ移動する</button>
     </div>
@@ -118,8 +126,24 @@
 <div id="map"></div>
 
 <script>
+    // ★追加：メニューの開閉処理（開いた時に凡例を閉じる）
     function toggleMenu() {
-        document.getElementById('ui-panel').classList.toggle('show');
+        const uiPanel = document.getElementById('ui-panel');
+        const legendPanel = document.getElementById('legend-panel');
+        uiPanel.classList.toggle('show');
+        if (window.innerWidth <= 600 && uiPanel.classList.contains('show')) {
+            legendPanel.classList.remove('show');
+        }
+    }
+
+    // ★追加：凡例の開閉処理（開いた時にメニューを閉じる）
+    function toggleLegend() {
+        const uiPanel = document.getElementById('ui-panel');
+        const legendPanel = document.getElementById('legend-panel');
+        legendPanel.classList.toggle('show');
+        if (window.innerWidth <= 600 && legendPanel.classList.contains('show')) {
+            uiPanel.classList.remove('show');
+        }
     }
 
     const map = L.map('map', {
@@ -204,7 +228,6 @@
         }
     }
 
-    // ★修正：テーマに合わせて凡例の中身が綺麗に切り替わるように整理
     function updateLegend(mapTheme) {
         const panel = document.getElementById('legend-panel');
         
@@ -227,13 +250,11 @@
             <div class="legend-item"><div class="color-box circle-box" style="background:#8B4513;"></div>終了・葉桜</div>
         `;
 
-        // プルダウンの選択状況に合わせて中身を差し替え
         if (mapTheme === 'indoor' || mapTheme === 'outdoor') {
             panel.innerHTML = signalLegend;
         } else if (mapTheme === 'flower') {
             panel.innerHTML = flowerLegend;
         } else {
-            // "ALL"の時は両方表示
             panel.innerHTML = signalLegend + `<div style="margin:12px 0; border-top:1px solid #ccc;"></div>` + flowerLegend;
         }
     }
@@ -243,7 +264,6 @@
         const selectedCarrier = document.getElementById('filter-carrier').value;
         const selectedWeather = document.getElementById('filter-weather').value;
 
-        // テーマが変更されたら凡例を更新
         updateLegend(mapTheme);
 
         const filteredFeatures = allFeatures.filter(feature => {
@@ -350,10 +370,12 @@
         }).addTo(map);
     }
 
+    // ★修正：ジャンプした時にメニューも凡例も両方自動で閉じる
     function jumpTo(lat, lng, zoom) {
         map.flyTo([lat, lng], zoom, { duration: 1.5 });
         if (window.innerWidth <= 600) {
             document.getElementById('ui-panel').classList.remove('show');
+            document.getElementById('legend-panel').classList.remove('show');
         }
     }
 
