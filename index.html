@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>燕山荘周辺 統合エリアライブマップ</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        body { margin: 0; padding: 0; font-family: sans-serif; }
+        #map { width: 100vw; height: 100vh; }
+        
+        #ui-panel {
+            position: absolute; top: 10px; left: 10px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.95); padding: 15px;
+            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); 
+            width: 300px; max-height: 85vh; overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        #mobile-toggle {
+            display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 2000; background: #2c3e50; color: white; border: none; padding: 12px 24px;
+            border-radius: 30px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* ★変更：凡例を「右下」に移動し、重なりを完全に解消 */
+        #legend-panel {
+            position: absolute; bottom: 20px; right: 10px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.95); padding: 12px; border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3); font-size: 12px;
+            max-height: 80vh; overflow-y: auto;
+        }
+
+        @media (max-width: 600px) {
+            #ui-panel {
+                top: auto; bottom: 80px; left: 50%; transform: translateX(-50%);
+                width: 90%; max-height: 60vh; display: none;
+            }
+            #ui-panel.show { display: block; }
+            #mobile-toggle { display: block; }
+            /* スマホ版でも右下に配置 */
+            #legend-panel { bottom: 80px; right: 10px; max-height: 40vh; }
+            .leaflet-control-zoom { display: none; }
+        }
+
+        h3 { margin: 0 0 10px 0; font-size: 15px; color: #333; border-bottom: 2px solid #2c3e50; padding-bottom: 5px;}
+        .control-group { margin-bottom: 12px; }
+        label { font-size: 12px; font-weight: bold; color: #555; display: block; margin-bottom: 2px;}
+        select { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px;}
+        button.jump-btn { width: 100%; padding: 10px; margin-top: 5px; background: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px;}
+        button.jump-btn:hover { background: #1a252f; }
+        
+        .legend-title { font-weight: bold; color: #333; margin-bottom: 8px; font-size: 13px; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 5px; color: #555; }
+        .color-box { width: 15px; height: 15px; margin-right: 8px; border: 1px solid #999; }
+        .circle-box { border-radius: 50%; } 
+    </style>
+</head>
+<body>
+
+<button id="mobile-toggle" onclick="toggleMenu()">⚙️ メニュー / 絞り込み</button>
+
+<div id="ui-panel">
+    <h3>🔍 絞り込み ＆ 表示切り替え</h3>
+    
+    <div class="control-group">
+        <label>マップテーマ</label>
+        <select id="map-theme" onchange="applyFilters()">
+            <option value="ALL">すべて表示</option>
+            <option value="indoor">📶 電波強度（屋内調査）</option>
+            <option value="outdoor">📶 電波強度（屋外調査）</option>
+            <option value="flower">🌸 開花状況</option>
+        </select>
+    </div>
+
+    <div class="control-group">
+        <label>キャリア（電波調査用）</label>
+        <select id="filter-carrier" onchange="applyFilters()">
+            <option value="ALL">すべて表示</option>
+            <option value="au">au</option>
+            <option value="docomo">docomo</option>
+            <option value="Wi-Fi">Wi-Fi</option>
+        </select>
+    </div>
+    
+    <div class="control-group">
+        <label>天気（屋外調査用）</label>
+        <select id="filter-weather" onchange="applyFilters()">
+            <option value="ALL">すべて表示</option>
+            <option value="快晴">快晴</option>
+            <option value="晴れ">晴れ</option>
+            <option value="曇">曇り</option>
+            <option value="雨">雨</option>
+            <option value="雪">雪</option>
+        </select>
+    </div>
+    <hr style="margin: 15px 0; border: 0; border-top: 1px solid #ccc;">
+    
+    <h3>📍 燕山荘グループへ移動</h3>
+    <div class="control-group">
+        <select id="jump-select">
+            <option value="36.3992, 137.7152, 19">🏕️ 燕山荘（えんざんそう）</option>
+            <option value="36.3942, 137.7468, 18">♨️ 有明荘（ありあけそう）</option>
+            <option value="36.3638, 137.7030, 18">🏕️ 大天荘（だいてんそう）</option>
+            <option value="36.3355, 137.6800, 18">🏕️ ヒュッテ西岳</option>
+            <option value="36.3378, 137.6550, 18">🏕️ ヒュッテ大槍</option>
+            <option value="36.3936, 137.7268, 19">🏕️ 合戦小屋（かっせんごや）</option>
+            <option value="35.91569751262187, 139.65840886944108, 19">🏕️ その他</option>
+        </select>
+        <button class="jump-btn" onclick="executeJump()">この場所へ移動する</button>
+    </div>
+</div>
+
+<div id="legend-panel"></div>
+<div id="map"></div>
+
+<script>
+    function toggleMenu() {
+        document.getElementById('ui-panel').classList.toggle('show');
+    }
+
+    const map = L.map('map', {
+        maxZoom: 22, zoomControl: false 
+    }).setView([36.3992, 137.7152], 16);
+    
+    L.control.zoom({ position: 'topright' }).addTo(map);
+
+    L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
+        attribution: "<a href='https://maps.gsi.go.jp/development/ichiran.html' target='_blank'>国土地理院</a>",
+        maxNativeZoom: 18, maxZoom: 22
+    }).addTo(map);
+
+    let currentLayer = null;
+    let allFeatures = [];
+
+    function getProp(props, targetKey) {
+        targetKey = targetKey.toLowerCase();
+        for (let key in props) {
+            if (key.toLowerCase() === targetKey) return props[key];
+        }
+        return undefined;
+    }
+
+    function toJaWeather(w) {
+        if (!w) return '-';
+        const map = {'Clear':'快晴', 'Sunny':'晴れ', 'Cloudy':'曇', 'Cloudy':'曇り', 'Rain':'雨', 'Snow':'雪', 'Unknown':'不明'};
+        return map[w] || w;
+    }
+
+    function toJaWind(w) {
+        if (!w) return '';
+        const map = {
+            'N':'北', 'NE':'北東', 'E':'東', 'SE':'南東', 'S':'南', 'SW':'南西', 'W':'西', 'NW':'北西',
+            'Weak':'弱', 'Moderate':'中', 'Strong':'強', 'None':'無風', 'Unknown':'不明'
+        };
+        return map[w] || w;
+    }
+
+    const dataSources = [
+        { url: 'data/signal_track.geojson', type: 'outdoor' },
+        { url: 'data/indoor_track.geojson', type: 'indoor' },
+        { url: 'data/flower_status.geojson', type: 'flower' }
+    ];
+
+    Promise.all(dataSources.map(source => 
+        fetch(source.url)
+            .then(res => res.json())
+            .then(data => {
+                data.features.forEach(f => f.properties.surveyType = source.type);
+                return data.features;
+            })
+            .catch(err => {
+                console.warn(`${source.url} が見つかりません（準備中）`);
+                return [];
+            })
+    )).then(results => {
+        allFeatures = results.flat(); 
+        applyFilters(); 
+    });
+
+    function getThemeColor(props, surveyType) {
+        if (surveyType === 'flower') {
+            const status = getProp(props, 'status') || getProp(props, 'flower_status') || '';
+            if (status.includes('つぼみ')) return '#32CD32'; 
+            if (status.includes('咲き始め')) return '#FFB6C1'; 
+            if (status.includes('見頃') || status.includes('満開')) return '#FF1493'; 
+            if (status.includes('散り始め')) return '#FFA500'; 
+            if (status.includes('終了') || status.includes('葉桜')) return '#8B4513'; 
+            return '#FF69B4'; 
+        }
+        else {
+            const rawLevel = String(getProp(props, 'signallevel') || '');
+            if (rawLevel.includes('衛星') || rawLevel.toLowerCase().includes('starlink')) return '#1E90FF';
+            
+            const level = parseInt(rawLevel, 10); 
+            if (level === 4) return '#00FF00';
+            if (level === 3) return '#FFFF00';
+            if (level === 2) return '#FFA500';
+            if (level === 1) return '#FF0000';
+            return '#808080';
+        }
+    }
+
+    // ★修正：テーマに合わせて凡例の中身が綺麗に切り替わるように整理
+    function updateLegend(mapTheme) {
+        const panel = document.getElementById('legend-panel');
+        
+        const signalLegend = `
+            <div class="legend-title">📶 電波強度</div>
+            <div class="legend-item"><div class="color-box" style="background:#00FF00;"></div>4 (非常に良好)</div>
+            <div class="legend-item"><div class="color-box" style="background:#FFFF00;"></div>3 (良好)</div>
+            <div class="legend-item"><div class="color-box" style="background:#FFA500;"></div>2 (やや弱い)</div>
+            <div class="legend-item"><div class="color-box" style="background:#FF0000;"></div>1 (非常に弱い)</div>
+            <div class="legend-item"><div class="color-box" style="background:#808080;"></div>0 (圏外・測定不可)</div>
+            <div class="legend-item"><div class="color-box" style="background:#1E90FF;"></div>衛星 (Starlink等)</div>
+        `;
+
+        const flowerLegend = `
+            <div class="legend-title">🌸 開花状況</div>
+            <div class="legend-item"><div class="color-box circle-box" style="background:#32CD32;"></div>つぼみ</div>
+            <div class="legend-item"><div class="color-box circle-box" style="background:#FFB6C1;"></div>咲き始め</div>
+            <div class="legend-item"><div class="color-box circle-box" style="background:#FF1493;"></div>見頃・満開</div>
+            <div class="legend-item"><div class="color-box circle-box" style="background:#FFA500;"></div>散り始め</div>
+            <div class="legend-item"><div class="color-box circle-box" style="background:#8B4513;"></div>終了・葉桜</div>
+        `;
+
+        // プルダウンの選択状況に合わせて中身を差し替え
+        if (mapTheme === 'indoor' || mapTheme === 'outdoor') {
+            panel.innerHTML = signalLegend;
+        } else if (mapTheme === 'flower') {
+            panel.innerHTML = flowerLegend;
+        } else {
+            // "ALL"の時は両方表示
+            panel.innerHTML = signalLegend + `<div style="margin:12px 0; border-top:1px solid #ccc;"></div>` + flowerLegend;
+        }
+    }
+
+    function applyFilters() {
+        const mapTheme = document.getElementById('map-theme').value;
+        const selectedCarrier = document.getElementById('filter-carrier').value;
+        const selectedWeather = document.getElementById('filter-weather').value;
+
+        // テーマが変更されたら凡例を更新
+        updateLegend(mapTheme);
+
+        const filteredFeatures = allFeatures.filter(feature => {
+            const props = feature.properties;
+            const surveyType = props.surveyType;
+            
+            const matchTheme = (mapTheme === "ALL" || surveyType === mapTheme);
+            
+            let matchCarrier = true;
+            let matchWeather = true;
+            
+            if (surveyType === 'indoor' || surveyType === 'outdoor') {
+                const carrier = getProp(props, 'carrier');
+                const weather = toJaWeather(getProp(props, 'weather'));
+                matchCarrier = (selectedCarrier === "ALL" || carrier === selectedCarrier);
+                matchWeather = (selectedWeather === "ALL" || weather === selectedWeather || weather.includes(selectedWeather));
+            }
+            
+            return matchTheme && matchCarrier && matchWeather;
+        });
+
+        if (currentLayer) map.removeLayer(currentLayer);
+
+        currentLayer = L.geoJSON({
+            "type": "FeatureCollection",
+            "features": filteredFeatures
+        }, {
+            style: function (feature) {
+                if (feature.geometry.type !== 'Point') {
+                    return {
+                        color: '#555',
+                        fillColor: getThemeColor(feature.properties, feature.properties.surveyType), 
+                        fillOpacity: 0.7,
+                        weight: 1
+                    };
+                }
+            },
+            pointToLayer: function (feature, latlng) {
+                const surveyType = feature.properties.surveyType;
+                const bgColor = getThemeColor(feature.properties, surveyType); 
+                
+                if (surveyType === 'flower') {
+                    return L.circleMarker(latlng, {
+                        radius: 6, color: '#fff', weight: 1, fillColor: bgColor, fillOpacity: 0.9
+                    });
+                } else {
+                    const grid = 0.00001; 
+                    const snapLat = Math.floor(latlng.lat / grid) * grid;
+                    const snapLng = Math.floor(latlng.lng / grid) * grid;
+                    const bounds = [[snapLat, snapLng], [snapLat + grid, snapLng + grid]];
+                    return L.rectangle(bounds, {
+                        color: '#555', weight: 1, fillColor: bgColor, fillOpacity: 0.8
+                    });
+                }
+            },
+            onEachFeature: function (feature, layer) {
+                const props = feature.properties;
+                const surveyType = props.surveyType;
+                let popupContent = `<div style="font-size: 13px;">`;
+                
+                if (surveyType === 'flower') {
+                    popupContent += `<b>🌸 開花状況</b><hr style="margin:5px 0;">`;
+                    const name = getProp(props, 'name') || getProp(props, 'flower_name') || '植物名不明';
+                    const status = getProp(props, 'status') || getProp(props, 'flower_status') || '状況不明';
+                    const date = getProp(props, 'date') || '-';
+                    const memo = getProp(props, 'memo') || getProp(props, 'notes') || '';
+                    
+                    popupContent += `<b>🌱 種類:</b> ${name}<br>`;
+                    popupContent += `<b>👀 状況:</b> ${status}<br>`;
+                    popupContent += `<b>📅 確認日:</b> ${date}<br>`;
+                    if(memo) popupContent += `<b>📝 メモ:</b> ${memo}<br>`;
+                } 
+                else {
+                    if (surveyType === 'outdoor') popupContent += `<b>🚶‍♂️ 屋外調査</b><hr style="margin:5px 0;">`;
+                    else if (surveyType === 'indoor') popupContent += `<b>🏠 屋内調査</b><hr style="margin:5px 0;">`;
+
+                    const carrier = getProp(props, 'carrier') || '不明';
+                    const rawLevel = getProp(props, 'signallevel');
+                    const rsrp = getProp(props, 'rsrp');
+                    const levelDisplay = rawLevel !== undefined ? rawLevel : (rsrp || '-');
+
+                    popupContent += `<b>📡 キャリア:</b> ${carrier}<br>`;
+                    popupContent += `<b>📶 電波レベル:</b> ${levelDisplay}<br>`;
+
+                    if (surveyType === 'outdoor') {
+                        const weather = toJaWeather(getProp(props, 'weather'));
+                        const windDir = toJaWind(getProp(props, 'winddirection'));
+                        const windStr = toJaWind(getProp(props, 'windstrength'));
+                        const windDisplay = windDir ? `${windDir} / ${windStr}` : '-';
+                        popupContent += `<b>☁️ 天気:</b> ${weather}<br>`;
+                        popupContent += `<b>🌬️ 風:</b> ${windDisplay}`;
+                    } 
+                    if (surveyType === 'indoor') {
+                        const building = getProp(props, 'building');
+                        const floor = getProp(props, 'floor');
+                        if(building) popupContent += `<b>🏠 建物:</b> ${building}<br>`;
+                        if(floor) popupContent += `<b>🏢 階層:</b> ${floor}`;
+                    }
+                }
+                
+                popupContent += `</div>`;
+                layer.bindPopup(popupContent);
+            }
+        }).addTo(map);
+    }
+
+    function jumpTo(lat, lng, zoom) {
+        map.flyTo([lat, lng], zoom, { duration: 1.5 });
+        if (window.innerWidth <= 600) {
+            document.getElementById('ui-panel').classList.remove('show');
+        }
+    }
+
+    function executeJump() {
+        const val = document.getElementById('jump-select').value;
+        const parts = val.split(',');
+        if(parts.length === 3) {
+            jumpTo(parseFloat(parts[0]), parseFloat(parts[1]), parseInt(parts[2], 10));
+        }
+    }
+</script>
+
+</body>
+</html>
