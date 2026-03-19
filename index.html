@@ -12,17 +12,38 @@
         body { margin: 0; padding: 0; font-family: sans-serif; }
         #map { width: 100vw; height: 100vh; }
         
-        #ui-panel { position: absolute; top: 10px; left: 10px; z-index: 1000; background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); width: 300px; max-height: 85vh; overflow-y: auto; transition: transform 0.3s ease; }
-        #legend-panel { position: absolute; bottom: 20px; right: 10px; z-index: 1000; background: rgba(255, 255, 255, 0.95); padding: 12px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); font-size: 12px; max-height: 80vh; overflow-y: auto; }
-        .mobile-btn { display: none; position: absolute; bottom: 20px; z-index: 2000; background: #2c3e50; color: white; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; }
+        #ui-panel {
+            position: absolute; top: 10px; left: 10px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.95); padding: 15px;
+            border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); 
+            width: 300px; max-height: 85vh; overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        #legend-panel {
+            position: absolute; bottom: 20px; right: 10px; z-index: 1000;
+            background: rgba(255, 255, 255, 0.95); padding: 12px; border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3); font-size: 12px;
+            max-height: 80vh; overflow-y: auto;
+        }
+
+        .mobile-btn {
+            display: none; position: absolute; bottom: 20px; z-index: 2000;
+            background: #2c3e50; color: white; border: none; padding: 12px 20px;
+            border-radius: 30px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
 
         @media (max-width: 600px) {
             #btn-menu { display: block; left: 10px; }
             #btn-legend { display: block; right: 10px; }
+            
             #ui-panel { top: auto; bottom: 80px; left: 50%; transform: translateX(-50%); width: 90%; max-height: 60vh; display: none; }
             #ui-panel.show { display: block; }
+            
             #legend-panel { bottom: 80px; right: 10px; max-height: 40vh; display: none; }
             #legend-panel.show { display: block; }
+            
             .leaflet-control-zoom { display: none; }
         }
 
@@ -60,12 +81,24 @@
 
     <div id="filter-rf-group">
         <div class="control-group">
-            <label>キャリア</label>
-            <select id="filter-carrier" onchange="applyFilters()"><option value="ALL">すべて表示</option><option value="au">au</option><option value="docomo">docomo</option><option value="Wi-Fi">Wi-Fi</option></select>
+            <label>キャリア（電波調査用）</label>
+            <select id="filter-carrier" onchange="applyFilters()">
+                <option value="ALL">すべて表示</option>
+                <option value="au">au</option>
+                <option value="docomo">docomo</option>
+                <option value="Wi-Fi">Wi-Fi</option>
+            </select>
         </div>
         <div class="control-group">
-            <label>天気</label>
-            <select id="filter-weather" onchange="applyFilters()"><option value="ALL">すべて表示</option><option value="快晴">快晴</option><option value="晴れ">晴れ</option><option value="曇">曇り</option><option value="雨">雨</option><option value="雪">雪</option></select>
+            <label>天気（屋外調査用）</label>
+            <select id="filter-weather" onchange="applyFilters()">
+                <option value="ALL">すべて表示</option>
+                <option value="快晴">快晴</option>
+                <option value="晴れ">晴れ</option>
+                <option value="曇">曇り</option>
+                <option value="雨">雨</option>
+                <option value="雪">雪</option>
+            </select>
         </div>
     </div>
 
@@ -116,7 +149,7 @@
         return undefined;
     }
 
-    // ★新しいレイヤ名に変更
+    // ★2つのレイヤ（flower_survey / autumn_survey）を読み込む
     const dataSources = [
         { url: 'data/signal_track.geojson', type: 'outdoor' },
         { url: 'data/indoor_track.geojson', type: 'indoor' },
@@ -153,15 +186,16 @@
         }
         else {
             const rawLevel = String(getProp(props, 'signallevel') || '');
-            if (rawLevel.includes('衛星')) return '#1E90FF';
+            if (rawLevel.includes('衛星') || rawLevel.toLowerCase().includes('starlink')) return '#1E90FF';
             const level = parseInt(rawLevel, 10); 
-            if (level === 4) return '#00FF00'; if (level === 3) return '#FFFF00';
-            if (level === 2) return '#FFA500'; if (level === 1) return '#FF0000';
+            if (level === 4) return '#00FF00'; 
+            if (level === 3) return '#FFFF00';
+            if (level === 2) return '#FFA500'; 
+            if (level === 1) return '#FF0000';
             return '#808080';
         }
     }
 
-    // 7日以上経過したデータを判定
     function isStale(dateStr) {
         if (!dateStr) return false;
         const obsDate = new Date(dateStr);
@@ -171,29 +205,40 @@
         return diffDays >= 7; 
     }
 
+    // ★修正：省略せずにすべての凡例を完全な状態で表示する
     function updateLegend(mapTheme) {
         const panel = document.getElementById('legend-panel');
         let html = '';
+        
         if (mapTheme === 'indoor' || mapTheme === 'outdoor' || mapTheme === 'ALL') {
             html += `<div class="legend-title">📶 電波強度</div>
-                <div class="legend-item"><div class="color-box" style="background:#00FF00;"></div>4 (良好)</div>
+                <div class="legend-item"><div class="color-box" style="background:#00FF00;"></div>4 (非常に良好)</div>
+                <div class="legend-item"><div class="color-box" style="background:#FFFF00;"></div>3 (良好)</div>
                 <div class="legend-item"><div class="color-box" style="background:#FFA500;"></div>2 (やや弱い)</div>
-                <div class="legend-item"><div class="color-box" style="background:#808080;"></div>0 (圏外)</div>`;
+                <div class="legend-item"><div class="color-box" style="background:#FF0000;"></div>1 (非常に弱い)</div>
+                <div class="legend-item"><div class="color-box" style="background:#808080;"></div>0 (圏外・測定不可)</div>
+                <div class="legend-item"><div class="color-box" style="background:#1E90FF;"></div>衛星 (Starlink等)</div>`;
         }
+        
         if (mapTheme === 'flower' || mapTheme === 'ALL') {
             if (mapTheme === 'ALL') html += `<div style="margin:12px 0; border-top:1px solid #ccc;"></div>`;
             html += `<div class="legend-title">🌸 開花状況</div>
                 <div class="legend-item"><div class="color-box circle-box" style="background:#32CD32;"></div>つぼみ</div>
+                <div class="legend-item"><div class="color-box circle-box" style="background:#FFB6C1;"></div>咲き始め</div>
                 <div class="legend-item"><div class="color-box circle-box" style="background:#FF1493;"></div>見頃・満開</div>
+                <div class="legend-item"><div class="color-box circle-box" style="background:#FFA500;"></div>散り始め</div>
                 <div class="legend-item"><div class="color-box circle-box" style="background:#8B4513;"></div>終了・葉桜</div>`;
         }
+        
         if (mapTheme === 'autumn' || mapTheme === 'ALL') {
             if (mapTheme === 'ALL') html += `<div style="margin:12px 0; border-top:1px solid #ccc;"></div>`;
             html += `<div class="legend-title">🍁 紅葉状況</div>
-                <div class="legend-item"><div class="color-box circle-box" style="background:#228B22;"></div>青葉</div>
+                <div class="legend-item"><div class="color-box circle-box" style="background:#228B22;"></div>青葉・緑葉</div>
+                <div class="legend-item"><div class="color-box circle-box" style="background:#FFA500;"></div>色づき始め</div>
                 <div class="legend-item"><div class="color-box circle-box" style="background:#DC143C;"></div>見頃・紅葉</div>
-                <div class="legend-item"><div class="color-box circle-box" style="background:#8B4513;"></div>落葉</div>`;
+                <div class="legend-item"><div class="color-box circle-box" style="background:#8B4513;"></div>枯れ・落葉</div>`;
         }
+        
         panel.innerHTML = html;
     }
 
@@ -242,7 +287,6 @@
         allFeatures.forEach(f => {
             const surveyType = f.properties.surveyType;
             if (surveyType === 'flower' || surveyType === 'autumn') {
-                // 自動生成された site_id をキーにして履歴をまとめる
                 const siteId = getProp(f.properties, 'site_id') || (getProp(f.properties, 'name') + '_' + f.geometry.coordinates.join(','));
                 const dateStr = getProp(f.properties, 'date');
                 const currentDate = dateStr ? new Date(dateStr) : new Date(0);
@@ -254,7 +298,6 @@
                     const existing = latestNatureFeatures.get(key);
                     const existingDateStr = getProp(existing.properties, 'date');
                     const existingDate = existingDateStr ? new Date(existingDateStr) : new Date(0);
-                    // 既存のものより日付が新しければ上書き
                     if (currentDate > existingDate) {
                         latestNatureFeatures.set(key, f);
                     }
@@ -274,6 +317,11 @@
             if (surveyType === 'indoor' || surveyType === 'outdoor') {
                 const carrier = getProp(props, 'carrier');
                 if (selectedCarrier !== "ALL" && carrier !== selectedCarrier) return false;
+                
+                if (surveyType === 'outdoor' && selectedWeather !== "ALL") {
+                    const weather = getProp(props, 'weather') || '';
+                    if (weather !== selectedWeather && !weather.includes(selectedWeather)) return false;
+                }
             }
             if (surveyType === 'flower' || surveyType === 'autumn') {
                 const name = getProp(props, 'name');
@@ -330,6 +378,7 @@
                 if (surveyType === 'flower' || surveyType === 'autumn') {
                     const title = surveyType === 'flower' ? '🌸 開花状況' : '🍁 紅葉状況';
                     popupContent += `<b>${title}</b><hr style="margin:5px 0;">`;
+                    popupContent += `<b>観測ID:</b> <span style="font-size:10px; color:gray;">${getProp(props, 'site_id') || '-'}</span><br>`;
                     popupContent += `<b>種類:</b> ${getProp(props, 'name') || '不明'}<br>`;
                     popupContent += `<b>状況:</b> <span style="font-size:15px; font-weight:bold;">${getProp(props, 'status') || '不明'}</span><br>`;
                     popupContent += `<b>確認日:</b> ${getProp(props, 'date') || '-'}<br>`;
