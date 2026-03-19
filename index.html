@@ -346,7 +346,7 @@
                     const levelDisplay = rawLevel !== undefined ? rawLevel : (rsrp || '-');
 
                     popupContent += `<b>📡 キャリア:</b> ${carrier}<br>`;
-                    popupContent += `<b>📶 電波レベル:</b> ${levelDisplay}<br>`;
+                    popupContent += `<b>📶 電波強度:</b> ${levelDisplay}<br>`;
 
                     if (surveyType === 'outdoor') {
                         const weather = toJaWeather(getProp(props, 'weather'));
