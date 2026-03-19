@@ -7,6 +7,7 @@
 { "type": "Feature", "properties": { "name": "た", "photo": "PXL_20260314_150126360.jpg", "status": "い", "memo": null }, "geometry": { "type": "Point", "coordinates": [ 139.655299, 35.894213 ] } },
 { "type": "Feature", "properties": { "name": "B", "photo": "PXL_20260314_023255026.jpg", "status": "34", "memo": null }, "geometry": { "type": "Point", "coordinates": [ 139.65534, 35.891332 ] } },
 { "type": "Feature", "properties": { "name": "C", "photo": "PXL_20260306_013320237.jpg", "status": "43", "memo": null }, "geometry": { "type": "Point", "coordinates": [ 139.655657, 35.892033 ] } },
-{ "type": "Feature", "properties": { "name": "D", "photo": "PXL_20260301_070404960.jpg", "status": "72", "memo": null }, "geometry": { "type": "Point", "coordinates": [ 139.663985, 35.895819 ] } }
+{ "type": "Feature", "properties": { "name": "D", "photo": "PXL_20260301_070404960.jpg", "status": "72", "memo": null }, "geometry": { "type": "Point", "coordinates": [ 139.663985, 35.895819 ] } },
+{ "type": "Feature", "properties": { "name": "コマクサ", "photo": "DSC_0136_1.JPG", "status": "3", "memo": "asd" }, "geometry": { "type": "Point", "coordinates": [ 139.6619, 35.892236 ] } }
 ]
 }
