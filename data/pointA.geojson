@@ -1,109 +1,14 @@
 {
-  "type": "FeatureCollection",
-  "name": "pointA",
-  "crs": {
-    "type": "name",
-    "properties": {
-      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
-    }
-  },
-  "xy_coordinate_resolution": 1e-06,
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "た",
-        "photo": "https://drive.google.com/thumbnail?id=1kd9dIe3eH3hYHlU09UYC2NtXlv85t-oR&sz=w800",
-        "status": "い",
-        "memo": null
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.655299,
-          35.894213
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "B",
-        "photo": "https://drive.google.com/thumbnail?id=1VHXunD-5J400OO0KmlRnDrclCD76KYG8&sz=w800",
-        "status": "34",
-        "memo": null
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.65534,
-          35.891332
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "C",
-        "photo": "https://drive.google.com/thumbnail?id=1N3fmRZ9OmIcLtwlxveRxqVzZQLMl7t4f&sz=w800",
-        "status": "43",
-        "memo": null
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.655657,
-          35.892033
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "D",
-        "photo": "https://drive.google.com/thumbnail?id=1gtFVST9k6U-pn0xnNOtuG_hQr28ikJDu&sz=w800",
-        "status": "72",
-        "memo": null
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.663985,
-          35.895819
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "コマクサ",
-        "photo": "https://drive.google.com/thumbnail?id=1WvRes887CFlutXlRK6FXQvkQdAwUqS4U&sz=w800",
-        "status": "3",
-        "memo": "asd"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.6619,
-          35.892236
-        ]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "リス",
-        "photo": "https://drive.google.com/thumbnail?id=1Z3I0AWdbHj7gaCnyWgFMBpGR2cJVaGfO&sz=w800",
-        "status": "1",
-        "memo": "ggg"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.661452,
-          35.894003
-        ]
-      }
-    }
-  ]
+"type": "FeatureCollection",
+"name": "pointA",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"xy_coordinate_resolution": 1e-06,
+"features": [
+{ "type": "Feature", "properties": { "name": "た", "status": "い", "radius_m": null, "date": null, "photo": null, "memo": null }, "geometry": { "type": "Point", "coordinates": [ 139.655299, 35.894213 ] } },
+{ "type": "Feature", "properties": { "name": "B", "status": "34", "radius_m": null, "date": null, "photo": null, "memo": null }, "geometry": { "type": "Point", "coordinates": [ 139.65534, 35.891332 ] } },
+{ "type": "Feature", "properties": { "name": "C", "status": "43", "radius_m": null, "date": null, "photo": null, "memo": null }, "geometry": { "type": "Point", "coordinates": [ 139.655657, 35.892033 ] } },
+{ "type": "Feature", "properties": { "name": "D", "status": "72", "radius_m": null, "date": null, "photo": null, "memo": null }, "geometry": { "type": "Point", "coordinates": [ 139.663985, 35.895819 ] } },
+{ "type": "Feature", "properties": { "name": "コマクサ", "status": "3", "radius_m": null, "date": null, "photo": null, "memo": null }, "geometry": { "type": "Point", "coordinates": [ 139.6619, 35.892236 ] } },
+{ "type": "Feature", "properties": { "name": "リス", "status": "1", "radius_m": null, "date": null, "photo": null, "memo": null }, "geometry": { "type": "Point", "coordinates": [ 139.661452, 35.894003 ] } }
+]
 }
