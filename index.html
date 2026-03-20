@@ -37,13 +37,10 @@
         @media (max-width: 600px) {
             #btn-menu { display: block; left: 10px; }
             #btn-legend { display: block; right: 10px; }
-            
             #ui-panel { top: auto; bottom: 80px; left: 50%; transform: translateX(-50%); width: 90%; max-height: 60vh; display: none; }
             #ui-panel.show { display: block; }
-            
             #legend-panel { bottom: 80px; right: 10px; max-height: 40vh; display: none; }
             #legend-panel.show { display: block; }
-            
             .leaflet-control-zoom { display: none; }
         }
 
@@ -81,7 +78,7 @@
 
     <div id="filter-rf-group">
         <div class="control-group">
-            <label>キャリア（電波調査用）</label>
+            <label>キャリア</label>
             <select id="filter-carrier" onchange="applyFilters()">
                 <option value="ALL">すべて表示</option>
                 <option value="au">au</option>
@@ -90,7 +87,7 @@
             </select>
         </div>
         <div class="control-group">
-            <label>天気（屋外調査用）</label>
+            <label>天気</label>
             <select id="filter-weather" onchange="applyFilters()">
                 <option value="ALL">すべて表示</option>
                 <option value="快晴">快晴</option>
@@ -150,7 +147,6 @@
         return undefined;
     }
 
-    // ★2つのレイヤ（flower_survey / autumn_survey）を読み込む
     const dataSources = [
         { url: 'data/signal_track.geojson', type: 'outdoor' },
         { url: 'data/indoor_track.geojson', type: 'indoor' },
@@ -206,7 +202,6 @@
         return diffDays >= 7; 
     }
 
-    // ★修正：省略せずにすべての凡例を完全な状態で表示する
     function updateLegend(mapTheme) {
         const panel = document.getElementById('legend-panel');
         let html = '';
@@ -281,34 +276,59 @@
 
         updateLegend(mapTheme);
 
-        // ★履歴から「最新のデータ」だけを抽出
-        const latestNatureFeatures = new Map();
+        const GROUPING_RADIUS_M = 15;
+        const groupedNatureFeatures = []; 
         const otherFeatures = [];
 
         allFeatures.forEach(f => {
-            const surveyType = f.properties.surveyType;
+            const props = f.properties;
+            const surveyType = props.surveyType;
+            
             if (surveyType === 'flower' || surveyType === 'autumn') {
-                const siteId = getProp(f.properties, 'site_id') || (getProp(f.properties, 'name') + '_' + f.geometry.coordinates.join(','));
-                const dateStr = getProp(f.properties, 'date');
+                const name = getProp(props, 'name') || '不明';
+                const dateStr = getProp(props, 'date');
                 const currentDate = dateStr ? new Date(dateStr) : new Date(0);
-                const key = surveyType + "_" + siteId;
+                
+                const latlng = L.latLng(f.geometry.coordinates[1], f.geometry.coordinates[0]);
 
-                if (!latestNatureFeatures.has(key)) {
-                    latestNatureFeatures.set(key, f);
-                } else {
-                    const existing = latestNatureFeatures.get(key);
-                    const existingDateStr = getProp(existing.properties, 'date');
-                    const existingDate = existingDateStr ? new Date(existingDateStr) : new Date(0);
-                    if (currentDate > existingDate) {
-                        latestNatureFeatures.set(key, f);
+                let foundGroup = false;
+                for (let g of groupedNatureFeatures) {
+                    if (g.surveyType === surveyType) {
+                        const rawName = getProp(props, 'name');
+                        if (rawName && rawName !== g.name) continue;
+
+                        const dist = latlng.distanceTo(g.latlng);
+                        if (dist <= GROUPING_RADIUS_M) { 
+                            foundGroup = true;
+                            if (currentDate >= g.date) {
+                                f.properties.name = g.name;
+                                f.properties.radius_m = g.radius_m;
+                                
+                                g.feature = f;
+                                g.date = currentDate;
+                                g.latlng = latlng; 
+                            }
+                            break;
+                        }
                     }
+                }
+                
+                if (!foundGroup) {
+                    groupedNatureFeatures.push({
+                        surveyType: surveyType,
+                        name: name,
+                        radius_m: getProp(props, 'radius_m'),
+                        date: currentDate,
+                        latlng: latlng,
+                        feature: f
+                    });
                 }
             } else {
                 otherFeatures.push(f);
             }
         });
 
-        const combinedFeatures = [...latestNatureFeatures.values(), ...otherFeatures];
+        const combinedFeatures = [...groupedNatureFeatures.map(g => g.feature), ...otherFeatures];
 
         const filteredFeatures = combinedFeatures.filter(feature => {
             const props = feature.properties;
@@ -352,7 +372,6 @@
                 const bgColor = getThemeColor(props, surveyType); 
                 
                 if (surveyType === 'flower' || surveyType === 'autumn') {
-                    // 古いデータは半透明に
                     const isOld = isStale(getProp(props, 'date'));
                     const opacity = isOld ? 0.3 : 0.9;
 
@@ -375,7 +394,6 @@
                 const surveyType = props.surveyType;
                 let popupContent = `<div style="font-size: 13px;">`;
                 
-                // 鮮度警告
                 if ((surveyType === 'flower' || surveyType === 'autumn') && isStale(getProp(props, 'date'))) {
                     popupContent += `<div style="color:red; font-weight:bold; font-size:12px; margin-bottom:5px;">⚠️ 1週間以上前の情報です</div>`;
                 }
@@ -398,6 +416,11 @@
                 else {
                     popupContent += `<b>📡 キャリア:</b> ${getProp(props, 'carrier') || '不明'}<br>`;
                     popupContent += `<b>📶 電波強度:</b> ${getProp(props, 'signallevel') || '-'}<br>`;
+                    
+                    if (surveyType === 'outdoor') {
+                        const weather = getProp(props, 'weather') || getProp(props, '天気') || '不明';
+                        popupContent += `<b>☁️ 天気:</b> ${weather}<br>`;
+                    }
                 }
                 
                 popupContent += `</div>`;
