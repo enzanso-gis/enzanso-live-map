@@ -50,10 +50,10 @@
     {
       "type": "Feature",
       "properties": {
-        "site_id": "{790a9a2c-dcff-4540-bf81-e63f77478eb0}",
-        "name": null,
+        "site_id": "{a89bd946-d2a8-4af1-b95d-4030d13779e2}",
+        "name": "紅葉a地点",
         "status": "落葉",
-        "radius_m": null,
+        "radius_m": 20.0,
         "date": "2026-03-21",
         "photo": "https://drive.google.com/thumbnail?id=1QNwBhUZbk_O6-ZOhhxTxmFygV3xu_Ek6&sz=w800",
         "memo": null
@@ -61,8 +61,9 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          139.155074,
-          35.858683
+          139.155088,
+          35.858639,
+          0.0
         ]
       }
     }
