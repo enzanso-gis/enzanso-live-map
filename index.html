@@ -28,7 +28,6 @@
         .color-box { width: 15px; height: 15px; margin-right: 8px; border: 1px solid #999; }
         .circle-box { border-radius: 50%; } 
 
-        /* ダウンロード防止モーダルCSS */
         .modal {
             display: none; position: fixed; z-index: 2000;
             padding-top: 30px; left: 0; top: 0; width: 100%; height: 100%;
@@ -55,7 +54,6 @@
             border-radius: 5px; margin-bottom: 8px; cursor: zoom-in;
         }
 
-        /* モバイル専用の調整 */
         @media (max-width: 600px) {
             #btn-menu { display: block; left: 10px; }
             #btn-legend { display: block; right: 10px; }
@@ -162,7 +160,6 @@
     L.control.zoom({ position: 'topright' }).addTo(map);
     L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', { maxNativeZoom: 18, maxZoom: 22 }).addTo(map);
 
-    // ★追加：色の重なり（濃縮）を防ぐための「半透明の専用クリアファイル（ペイン）」を作成
     map.createPane('gridPane');
     map.getPane('gridPane').style.zIndex = 400; 
     map.getPane('gridPane').style.opacity = 0.6; 
@@ -287,7 +284,6 @@
 
     function populateFloorDropdown() {
         const select = document.getElementById('filter-floor');
-        // 一旦中身をリセットして「すべての階層」だけにする
         select.innerHTML = '<option value="ALL">すべての階層</option>';
         
         const floorSet = new Set();
@@ -299,7 +295,6 @@
             }
         });
 
-        // 昇順（1F, 2F...）に並び替えてドロップダウンに追加
         Array.from(floorSet).sort().forEach(floor => {
             const option = document.createElement('option');
             option.value = floor; 
@@ -327,7 +322,7 @@
             } else if (mapTheme === 'outdoor') {
                 weatherGroup.style.display = 'block';
                 floorGroup.style.display = 'none';
-            } else { // ALLの時
+            } else { 
                 weatherGroup.style.display = 'block';
                 floorGroup.style.display = 'none'; 
             }
@@ -455,12 +450,16 @@
                         return L.circleMarker(latlng, { radius: 8, color: '#fff', weight: 1, fillColor: bgColor, fillOpacity: opacity, opacity: opacity });
                     }
                 } else {
-                    const grid = 0.00003;
-                    const minLng = Math.floor(latlng.lng / grid) * grid;
-                    const minLat = Math.floor(latlng.lat / grid) * grid;
-                    const maxLng = minLng + grid;
-                    const maxLat = minLat + grid;
-                    const bounds = [[minLat, minLng], [maxLat, maxLng]];
+                    // ★完全修正箇所：QGISを正とし、屋内外問わず「0.00003」に統一
+                    const grid = 0.00003; 
+                    
+                    // ★JSの小数点計算バグ（1.9999が1に切り捨てられる問題）を防ぐ極小値の補正
+                    const epsilon = 1e-9;
+                    
+                    const snapLat = Math.floor((latlng.lat / grid) + epsilon) * grid;
+                    const snapLng = Math.floor((latlng.lng / grid) + epsilon) * grid;
+                    
+                    const bounds = [[snapLat, snapLng], [snapLat + grid, snapLng + grid]];
                     return L.rectangle(bounds, { color: '#555', weight: 0.5, fillColor: bgColor, fillOpacity: 1.0, pane: 'gridPane' });
                 }
             },
