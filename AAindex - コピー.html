@@ -455,12 +455,11 @@
                         return L.circleMarker(latlng, { radius: 8, color: '#fff', weight: 1, fillColor: bgColor, fillOpacity: opacity, opacity: opacity });
                     }
                 } else {
-                    const grid = 0.00003;
-                    const minLng = Math.floor(latlng.lng / grid) * grid;
-                    const minLat = Math.floor(latlng.lat / grid) * grid;
-                    const maxLng = minLng + grid;
-                    const maxLat = minLat + grid;
-                    const bounds = [[minLat, minLng], [maxLat, maxLng]];
+                    // ★修正：図形自体は透明度1.0（透けない）で描き、透明度0.4の「gridPane」の中にいれる！
+                    const grid = surveyType === 'indoor' ? 0.00003 : 0.0001;
+                    const snapLat = Math.floor(latlng.lat / grid) * grid;
+                    const snapLng = Math.floor(latlng.lng / grid) * grid;
+                    const bounds = [[snapLat, snapLng], [snapLat + grid, snapLng + grid]];
                     return L.rectangle(bounds, { color: '#555', weight: 0.5, fillColor: bgColor, fillOpacity: 1.0, pane: 'gridPane' });
                 }
             },
