@@ -48,6 +48,26 @@
           0.0
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{f8c9037d-0ed7-44ad-bf2a-d50618d08b2c}",
+        "name": "平台山",
+        "status": "見頃",
+        "radius_m": 500.0,
+        "date": "2026-03-18",
+        "photo": "DSC_0306_1.JPG",
+        "memo": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.170478,
+          35.862387,
+          0.0
+        ]
+      }
     }
   ]
 }
