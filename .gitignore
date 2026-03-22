@@ -1,0 +1,36 @@
+# --- OS generated files ---
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+
+# --- Python & Build artifacts ---
+# 公開リポジトリにビルド前の残骸が混入しないように制限
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+.env
+.envrc
+
+# --- GIS specific (Safety Net) ---
+# 万が一スクリプトのミスで生データが混入しようとしてもブロックする
+*.qgs~
+*.qgz
+*.gpkg-shm
+*.gpkg-wal
+raw_data/
+scripts/
+
+# --- Web Development ---
+# もしnpm等を使う場合用
+node_modules/
+npm-debug.log*
+
+# --- Documentation ---
+# ローカルのメモなどは上げない
+memo.txt
+*.md.bak
