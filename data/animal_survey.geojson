@@ -4,6 +4,8 @@
 "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "xy_coordinate_resolution": 1e-06,
 "features": [
-
+{ "type": "Feature", "properties": { "name": "カモシカ", "date": "2026-03-28", "weather": "晴れ", "memo": "オス", "photo": "DCIM/animal-survey_20260328162543150.jpg" }, "geometry": { "type": "Point", "coordinates": [ 139.159994, 35.856972 ] } },
+{ "type": "Feature", "properties": { "name": "シカ", "date": "2026-03-25", "weather": "曇り", "memo": "メス", "photo": "DCIM/animal-survey_20260328162645990.jpg" }, "geometry": { "type": "Point", "coordinates": [ 139.160444, 35.855595 ] } },
+{ "type": "Feature", "properties": { "name": "シカ", "date": "2026-03-26", "weather": "曇り", "memo": "オス", "photo": "DCIM/animal-survey_20260328162725045.jpg" }, "geometry": { "type": "Point", "coordinates": [ 139.153501, 35.859332 ] } }
 ]
 }
