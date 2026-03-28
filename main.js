@@ -1,4 +1,4 @@
-    function toggleMenu() { document.getElementById('ui-panel').classList.toggle('show'); }
+function toggleMenu() { document.getElementById('ui-panel').classList.toggle('show'); }
     function toggleLegend() { document.getElementById('legend-panel').classList.toggle('show'); }
 
     if (typeof THEME_CONFIG !== 'undefined') {
@@ -14,7 +14,7 @@
     const startLat = parseFloat(urlParams.get('lat')) || 36.3992; 
     const startLng = parseFloat(urlParams.get('lng')) || 137.7152; 
     const startZoom = parseInt(urlParams.get('zoom')) || 18; 
-    const startTheme = urlParams.get('theme'); // ★追加: URLからthemeパラメータを取得
+    const startTheme = urlParams.get('theme');
 
     if (startTheme) {
         const themeSelect = document.getElementById('map-theme');
@@ -23,7 +23,6 @@
         }
     }
 
-    // 取得した座標を中心にマップ描画
     const map = L.map('map', { maxZoom: 22, zoomControl: false }).setView([startLat, startLng], startZoom);
     L.control.zoom({ position: 'topright' }).addTo(map);
     L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', { maxNativeZoom: 18, maxZoom: 22 }).addTo(map);
@@ -34,6 +33,38 @@
 
     let currentLayer = null;
     let allFeatures = [];
+    
+    // 動物（ライチョウ等）を円でまとめるクラスタリンググループの設定
+    let animalClusterGroup = L.markerClusterGroup({
+        disableClusteringAtZoom: 16,
+        zoomToBoundsOnClick: false
+    }).addTo(map);
+
+    animalClusterGroup.on('clusterclick', function (a) {
+        const markers = a.layer.getAllChildMarkers();
+        let latestMarker = markers[0];
+        let latestDateStr = getProp(latestMarker.feature.properties, 'date') || getProp(latestMarker.feature.properties, '日付') || "1970-01-01";
+        
+        markers.forEach(m => {
+            const d = getProp(m.feature.properties, 'date') || getProp(m.feature.properties, '日付') || "1970-01-01";
+            if (d > latestDateStr) {
+                latestDateStr = d;
+                latestMarker = m;
+            }
+        });
+        
+        const speciesFilter = document.getElementById('filter-species') ? document.getElementById('filter-species').value : 'ALL';
+        const animalName = speciesFilter !== 'ALL' ? speciesFilter : '動物・鳥類';
+
+        const popupContent = `
+            <div style="text-align:center; margin-bottom:8px; padding-bottom:5px; border-bottom:2px dashed #ccc;">
+                <b><span style="font-size:16px; color:#2c3e50;">🐾 ${animalName} 計 ${markers.length} 件</span></b><br>
+                <span style="font-size:11px; color:#666;">※このエリアの最新記録を表示</span>
+            </div>
+            ${latestMarker.getPopup().getContent()}
+        `;
+        L.popup().setLatLng(a.layer.getLatLng()).setContent(popupContent).openOn(map);
+    });
 
     function getProp(props, targetKey) {
         targetKey = targetKey.toLowerCase();
@@ -47,7 +78,8 @@
         { url: 'data/signal_track.geojson', type: 'outdoor' },
         { url: 'data/indoor_survey.geojson', type: 'indoor' },
         { url: 'data/flower_survey.geojson', type: 'flower' }, 
-        { url: 'data/autumn_survey.geojson', type: 'autumn' }
+        { url: 'data/autumn_survey.geojson', type: 'autumn' },
+        { url: 'data/animal_survey.geojson', type: 'animal' } // ★追加
     ];
 
     Promise.all(dataSources.map(source => 
@@ -101,13 +133,10 @@
     function updateLegend(mapTheme) {
         const panel = document.getElementById('legend-panel');
         let html = '';
-
-        // config.jsでそのテーマが有効(true)かどうかを判定する関数
         const isActive = (theme) => {
             return typeof THEME_CONFIG === 'undefined' || THEME_CONFIG[theme] !== false;
         };
         
-        // 📶 電波強度の凡例 (indoor または outdoor が有効な場合のみ表示)
         if ((mapTheme === 'indoor' || mapTheme === 'outdoor' || mapTheme === 'ALL') && (isActive('indoor') || isActive('outdoor'))) {
             html += `<div class="legend-title">📶 電波強度</div>
                 <div class="legend-item"><div class="color-box" style="background:#00FF00;"></div>4 (非常に良好)</div>
@@ -118,7 +147,6 @@
                 <div class="legend-item"><div class="color-box" style="background:#1E90FF;"></div>衛星 (Starlink等)</div>`;
         }
         
-        // 🌸 開花状況の凡例
         if ((mapTheme === 'flower' || mapTheme === 'ALL') && isActive('flower')) {
             if (html !== '') html += `<div style="margin:12px 0; border-top:1px solid #ccc;"></div>`;
             html += `<div class="legend-title">🌸 開花状況</div>
@@ -129,7 +157,6 @@
                 <div class="legend-item"><div class="color-box circle-box" style="background:#8B4513;"></div>終了・葉桜</div>`;
         }
         
-        // 🍁 紅葉状況の凡例
         if ((mapTheme === 'autumn' || mapTheme === 'ALL') && isActive('autumn')) {
             if (html !== '') html += `<div style="margin:12px 0; border-top:1px solid #ccc;"></div>`;
             html += `<div class="legend-title">🍁 紅葉状況</div>
@@ -138,32 +165,58 @@
                 <div class="legend-item"><div class="color-box circle-box" style="background:#DC143C;"></div>見頃・紅葉</div>
                 <div class="legend-item"><div class="color-box circle-box" style="background:#8B4513;"></div>枯れ・落葉</div>`;
         }
+
+        if ((mapTheme === 'animal' || mapTheme === 'ALL') && isActive('animal')) {
+            if (html !== '') html += `<div style="margin:12px 0; border-top:1px solid #ccc;"></div>`;
+            html += `<div class="legend-title">🐾 動物・鳥類観察</div>
+                <div class="legend-item">複数羽の重なりは円と数字で集約されます。<br>円をクリックすると最新の記録を確認できます。</div>`;
+        }
         
         panel.innerHTML = html;
     }
 
-    function populateSpeciesDropdown(theme) {
-        const select = document.getElementById('filter-species');
-        select.innerHTML = '<option value="ALL">すべての種類</option>';
+    function populateNatureDropdowns(theme) {
+        const speciesSelect = document.getElementById('filter-species');
+        const weatherSelect = document.getElementById('filter-nature-weather');
+        
+        if(speciesSelect) speciesSelect.innerHTML = '<option value="ALL">すべての種類</option>';
+        if(weatherSelect) weatherSelect.innerHTML = '<option value="ALL">すべての天気</option>';
+        
         const speciesSet = new Set();
+        const weatherSet = new Set();
+        
         allFeatures.forEach(f => {
             if (f.properties.surveyType === theme) {
-                const name = getProp(f.properties, 'name');
+                const name = getProp(f.properties, 'name') || getProp(f.properties, '名前');
                 if (name) speciesSet.add(name);
+                
+                const weather = getProp(f.properties, 'weather') || getProp(f.properties, '天気');
+                if (weather) weatherSet.add(weather);
             }
         });
-        Array.from(speciesSet).sort().forEach(species => {
-            const option = document.createElement('option');
-            option.value = species; option.textContent = species; select.appendChild(option);
-        });
+
+        if(speciesSelect) {
+            Array.from(speciesSet).sort().forEach(species => {
+                const opt = document.createElement('option');
+                opt.value = species; opt.textContent = species; 
+                speciesSelect.appendChild(opt);
+            });
+        }
+        if(weatherSelect) {
+            Array.from(weatherSet).sort().forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = w; opt.textContent = w; 
+                weatherSelect.appendChild(opt);
+            });
+        }
     }
 
     function populateFloorDropdown() {
         const select = document.getElementById('filter-floor');
+        if(!select) return;
         select.innerHTML = '<option value="ALL">すべての階層</option>';
         
         const floorSet = new Set();
-        
         allFeatures.forEach(f => {
             if (f.properties.surveyType === 'indoor') {
                 const floor = getProp(f.properties, 'floor') || getProp(f.properties, '階層');
@@ -173,8 +226,7 @@
 
         Array.from(floorSet).sort().forEach(floor => {
             const option = document.createElement('option');
-            option.value = floor; 
-            option.textContent = floor; 
+            option.value = floor; option.textContent = floor; 
             select.appendChild(option);
         });
     }
@@ -188,27 +240,36 @@
         const windStrGroup = document.getElementById('filter-wind-str-group'); 
         const floorGroup = document.getElementById('filter-floor-group');
 
-        if (mapTheme === 'flower' || mapTheme === 'autumn') {
-            rfGroup.style.display = 'none'; natureGroup.style.display = 'block';
-            populateSpeciesDropdown(mapTheme);
+        if (mapTheme === 'flower' || mapTheme === 'autumn' || mapTheme === 'animal') {
+            if(rfGroup) rfGroup.style.display = 'none'; 
+            if(natureGroup) natureGroup.style.display = 'block';
+            
+            const speciesLabel = document.getElementById('filter-species-label');
+            if(speciesLabel) {
+                if (mapTheme === 'flower') speciesLabel.innerText = '🌸 植物の種類';
+                else if (mapTheme === 'autumn') speciesLabel.innerText = '🍁 樹木の種類';
+                else if (mapTheme === 'animal') speciesLabel.innerText = '🐾 動物の種類';
+            }
+            populateNatureDropdowns(mapTheme);
         } else {
-            rfGroup.style.display = 'block'; natureGroup.style.display = 'none';
+            if(rfGroup) rfGroup.style.display = 'block'; 
+            if(natureGroup) natureGroup.style.display = 'none';
             if (mapTheme === 'indoor') {
-                weatherGroup.style.display = 'none'; 
-                windDirGroup.style.display = 'none'; 
-                windStrGroup.style.display = 'none'; 
-                floorGroup.style.display = 'block';
+                if(weatherGroup) weatherGroup.style.display = 'none'; 
+                if(windDirGroup) windDirGroup.style.display = 'none'; 
+                if(windStrGroup) windStrGroup.style.display = 'none'; 
+                if(floorGroup) floorGroup.style.display = 'block';
                 populateFloorDropdown();
             } else if (mapTheme === 'outdoor') {
-                weatherGroup.style.display = 'block'; 
-                windDirGroup.style.display = 'block'; 
-                windStrGroup.style.display = 'block'; 
-                floorGroup.style.display = 'none';
+                if(weatherGroup) weatherGroup.style.display = 'block'; 
+                if(windDirGroup) windDirGroup.style.display = 'block'; 
+                if(windStrGroup) windStrGroup.style.display = 'block'; 
+                if(floorGroup) floorGroup.style.display = 'none';
             } else { 
-                weatherGroup.style.display = 'block'; 
-                windDirGroup.style.display = 'block'; 
-                windStrGroup.style.display = 'block'; 
-                floorGroup.style.display = 'none'; 
+                if(weatherGroup) weatherGroup.style.display = 'block'; 
+                if(windDirGroup) windDirGroup.style.display = 'block'; 
+                if(windStrGroup) windStrGroup.style.display = 'block'; 
+                if(floorGroup) floorGroup.style.display = 'none'; 
             }
         }
         applyFilters();
@@ -216,23 +277,29 @@
 
     function applyFilters() {
         const mapTheme = document.getElementById('map-theme').value;
-        const selectedCarrier = document.getElementById('filter-carrier').value;
-        const selectedWeather = document.getElementById('filter-weather').value;
+        const selectedCarrier = document.getElementById('filter-carrier') ? document.getElementById('filter-carrier').value : 'ALL';
+        const selectedOutdoorWeather = document.getElementById('filter-weather') ? document.getElementById('filter-weather').value : 'ALL';
+        
         const windStrSelect = document.getElementById('filter-wind-str');
         const windDirSelect = document.getElementById('filter-wind-dir');
         
-        if (windStrSelect.value === '無風') {
-            windDirSelect.value = 'ALL'; // 自動的に「すべて表示」に戻す
-            windDirSelect.disabled = true; // 選択不可（グレーアウト）にする
-        } else {
-            windDirSelect.disabled = false; // 選択可能にする
+        if (windStrSelect && windDirSelect) {
+            if (windStrSelect.value === '無風') {
+                windDirSelect.value = 'ALL';
+                windDirSelect.disabled = true;
+            } else {
+                windDirSelect.disabled = false;
+            }
         }
         
-        const selectedWindStr = windStrSelect.value; 
-        const selectedWindDir = windDirSelect.value;
-        
-        const selectedSpecies = document.getElementById('filter-species').value;
-        const selectedFloor = document.getElementById('filter-floor').value;
+        const selectedWindStr = windStrSelect ? windStrSelect.value : 'ALL'; 
+        const selectedWindDir = windDirSelect ? windDirSelect.value : 'ALL';
+        const selectedFloor = document.getElementById('filter-floor') ? document.getElementById('filter-floor').value : 'ALL';
+
+        // 動物・植物系の絞り込み
+        const selectedSpecies = document.getElementById('filter-species') ? document.getElementById('filter-species').value : 'ALL';
+        const selectedNatureWeather = document.getElementById('filter-nature-weather') ? document.getElementById('filter-nature-weather').value : 'ALL';
+        const selectedDate = document.getElementById('filter-date') ? document.getElementById('filter-date').value : '';
 
         updateLegend(mapTheme);
 
@@ -240,6 +307,7 @@
         const groupedNatureFeatures = []; 
         const otherFeatures = [];
 
+        // 植物（花・紅葉）の近接ポイント結合処理
         allFeatures.forEach(f => {
             const props = f.properties;
             const surveyType = props.surveyType;
@@ -300,17 +368,14 @@
                 if (selectedCarrier !== "ALL" && carrier !== selectedCarrier) return false;
                 
                 if (surveyType === 'outdoor') {
-                    
-                    if (selectedWeather !== "ALL") {
+                    if (selectedOutdoorWeather !== "ALL") {
                         const weather = getProp(props, 'weather') || '';
-                        if (weather !== selectedWeather && !weather.includes(selectedWeather)) return false;
+                        if (weather !== selectedOutdoorWeather && !weather.includes(selectedOutdoorWeather)) return false;
                     }
-                    
                     if (selectedWindDir !== "ALL") {
                         const windDir = getProp(props, 'winddirection') || getProp(props, '風向') || '';
                         if (windDir !== selectedWindDir) return false;
                     }
-                    
                     if (selectedWindStr !== "ALL") {
                         const windStr = getProp(props, 'windstrength') || getProp(props, '風力') || '';
                         if (windStr !== selectedWindStr) return false;
@@ -322,9 +387,17 @@
                     if (floor !== selectedFloor) return false; 
                 }
             }
-            if (surveyType === 'flower' || surveyType === 'autumn') {
-                const name = getProp(props, 'name');
+            if (surveyType === 'flower' || surveyType === 'autumn' || surveyType === 'animal') {
+                const name = getProp(props, 'name') || getProp(props, '名前');
                 if (selectedSpecies !== "ALL" && name !== selectedSpecies) return false;
+
+                const fWeather = getProp(props, 'weather') || getProp(props, '天気');
+                if (selectedNatureWeather !== "ALL" && fWeather !== selectedNatureWeather) return false;
+
+                if (selectedDate) {
+                    const fDate = getProp(props, 'date') || getProp(props, '日付') || '';
+                    if (!fDate.startsWith(selectedDate)) return false;
+                }
             }
             return true;
         });
@@ -337,10 +410,9 @@
             const surveyType = props.surveyType;
 
             if (surveyType === 'indoor' || surveyType === 'outdoor') {
-                // Point(既存の屋内データなど)とPolygon(新しい屋外データ)の両方の座標に対応
                 let key = null;
                 if (feature.geometry.type === 'Polygon') {
-                    const c = feature.geometry.coordinates[0][0]; // [lon, lat]
+                    const c = feature.geometry.coordinates[0][0]; 
                     key = `${c[0].toFixed(6)}_${c[1].toFixed(6)}`;
                 } else if (feature.geometry.type === 'Point') {
                     const lon = feature.geometry.coordinates[0];
@@ -353,7 +425,6 @@
                 }
 
                 if (key) {
-                    // 座標キーごとにデータをまとめる
                     if (!rfGroups[key]) {
                         rfGroups[key] = { baseFeature: feature, levels: [], weathers: new Set(), windDirs: new Set(), windStrs: new Set() };
                     }
@@ -370,22 +441,19 @@
                     finalFeatures.push(feature);
                 }
             } else {
-                finalFeatures.push(feature); // 植物系のデータはそのまま追加
+                finalFeatures.push(feature); 
             }
         });
 
-        // まとめたデータから中央値を計算し、新しいFeatureを作成
         Object.values(rfGroups).forEach(group => {
-            const clonedFeature = JSON.parse(JSON.stringify(group.baseFeature)); // ディープコピー
+            const clonedFeature = JSON.parse(JSON.stringify(group.baseFeature)); 
             if (group.levels.length > 0) {
-                // 中央値の計算
                 group.levels.sort((a, b) => a - b);
                 const mid = Math.floor(group.levels.length / 2);
                 const median = group.levels.length % 2 === 0 
                     ? Math.round((group.levels[mid - 1] + group.levels[mid]) / 2) 
                     : group.levels[mid];
                 
-                // プロパティの更新 (大文字小文字の重複を防ぐため一度削除)
                 Object.keys(clonedFeature.properties).forEach(k => {
                     const lowerK = k.toLowerCase();
                     if (['signallevel', 'weather', 'winddirection', 'windstrength'].includes(lowerK)) {
@@ -394,34 +462,42 @@
                 });
                 
                 clonedFeature.properties.SignalLevel = median;
-                // 重なった条件をカンマ区切りで結合 (例: "快晴, 曇り")
                 clonedFeature.properties.Weather = Array.from(group.weathers).filter(Boolean).join(', ') || '不明';
                 clonedFeature.properties.WindDirection = Array.from(group.windDirs).filter(Boolean).join(', ');
                 clonedFeature.properties.WindStrength = Array.from(group.windStrs).filter(Boolean).join(', ');
-                clonedFeature.properties.isMerged = group.levels.length > 1; // 複数マージされたかどうかのフラグ
+                clonedFeature.properties.isMerged = group.levels.length > 1; 
             }
             finalFeatures.push(clonedFeature);
         });
 
         if (currentLayer) map.removeLayer(currentLayer);
+        if (animalClusterGroup) animalClusterGroup.clearLayers();
 
-        currentLayer = L.geoJSON({
-            "type": "FeatureCollection",
-            "features": finalFeatures
-        }, {
+        const normalFeatures = [];
+        const animalFeatures = [];
+
+        finalFeatures.forEach(f => {
+            if (f.properties.surveyType === 'animal') {
+                animalFeatures.push(f);
+            } else {
+                normalFeatures.push(f);
+            }
+        });
+
+        const geojsonOptions = {
             style: function (feature) {
                 if (feature.geometry.type !== 'Point') {
-                    return {
-                        stroke: false, 
-                        fillColor: getThemeColor(feature.properties, feature.properties.surveyType), 
-                        fillOpacity: 1.0, 
-                        pane: 'gridPane' 
-                    };
+                    return { stroke: false, fillColor: getThemeColor(feature.properties, feature.properties.surveyType), fillOpacity: 1.0, pane: 'gridPane' };
                 }
             },
             pointToLayer: function (feature, latlng) {
                 const props = feature.properties;
                 const surveyType = props.surveyType;
+                
+                if (surveyType === 'animal') {
+                    return L.marker(latlng);
+                }
+
                 const bgColor = getThemeColor(props, surveyType); 
                 
                 if (surveyType === 'flower' || surveyType === 'autumn') {
@@ -440,7 +516,6 @@
                     const epsilon = 1e-9;
                     const snapLat = Math.floor((latlng.lat / grid) + epsilon) * grid;
                     const snapLng = Math.floor((latlng.lng / grid) + epsilon) * grid;
-                    
                     const bounds = [[snapLat, snapLng], [snapLat + grid, snapLng + grid]];
                     return L.rectangle(bounds, { color: '#555', weight: 0.5, fillColor: bgColor, fillOpacity: 1.0, pane: 'gridPane' });
                 }
@@ -450,23 +525,35 @@
                 const surveyType = props.surveyType;
                 let popupContent = `<div style="font-size: 13px;">`;
                 
-                if ((surveyType === 'flower' || surveyType === 'autumn') && isStale(getProp(props, 'date'))) {
+                if ((surveyType === 'flower' || surveyType === 'autumn' || surveyType === 'animal') && isStale(getProp(props, 'date'))) {
                     popupContent += `<div style="color:red; font-weight:bold; font-size:12px; margin-bottom:5px;">⚠️ 1週間以上前の情報です</div>`;
                 }
 
-                const photoUrl = getProp(props, 'photo');
+                const photoUrl = getProp(props, 'photo') || getProp(props, '写真');
                 if (photoUrl && photoUrl.startsWith('http')) {
                     popupContent += `<div onclick="openModal('${photoUrl}')" class="popup-img-box" style="background-image: url('${photoUrl}');"></div>`;
                 }
                 
-                if (surveyType === 'flower' || surveyType === 'autumn') {
-                    const title = surveyType === 'flower' ? '🌸 開花状況' : '🍁 紅葉状況';
+                if (surveyType === 'flower' || surveyType === 'autumn' || surveyType === 'animal') {
+                    let title = '🐾 動物・鳥類観察';
+                    if (surveyType === 'flower') title = '🌸 開花状況';
+                    if (surveyType === 'autumn') title = '🍁 紅葉状況';
+
                     popupContent += `<b>${title}</b><hr>`;
-                    popupContent += `<b>種類:</b> ${getProp(props, 'name') || '不明'}<br>`;
-                    popupContent += `<b>状況:</b> <span style="font-size:15px; font-weight:bold;">${getProp(props, 'status') || '不明'}</span><br>`;
-                    popupContent += `<b>確認日:</b> ${getProp(props, 'date') || '-'}<br>`;
+                    popupContent += `<b>種類:</b> ${getProp(props, 'name') || getProp(props, '名前') || '不明'}<br>`;
                     
-                    const memo = getProp(props, 'memo');
+                    if(surveyType !== 'animal') {
+                        popupContent += `<b>状況:</b> <span style="font-size:15px; font-weight:bold;">${getProp(props, 'status') || '不明'}</span><br>`;
+                    }
+                    
+                    popupContent += `<b>確認日:</b> ${getProp(props, 'date') || getProp(props, '日付') || '-'}<br>`;
+                    
+                    if (surveyType === 'animal') {
+                        const w = getProp(props, 'weather') || getProp(props, '天気');
+                        if (w) popupContent += `<b>天気:</b> ${w}<br>`;
+                    }
+
+                    const memo = getProp(props, 'memo') || getProp(props, 'メモ');
                     if(memo) popupContent += `<br><b>📝 メモ:</b><br><span style="color:#555;">${memo}</span>`;
                 } 
                 else {
@@ -495,11 +582,16 @@
                 }
                 
                 popupContent += `</div>`;
-                
                 const maxW = window.innerWidth < 600 ? 220 : 300;
                 layer.bindPopup(popupContent, { minWidth: 150, maxWidth: maxW });
             }
-        }).addTo(map);
+        };
+
+        currentLayer = L.geoJSON({ "type": "FeatureCollection", "features": normalFeatures }, geojsonOptions).addTo(map);
+
+        if (animalFeatures.length > 0 && animalClusterGroup) {
+            L.geoJSON({ "type": "FeatureCollection", "features": animalFeatures }, geojsonOptions).addTo(animalClusterGroup);
+        }
     }
 
     function jumpTo(lat, lng, zoom) { 
