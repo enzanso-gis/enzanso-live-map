@@ -19,7 +19,7 @@ body {
 }
 
 /* ---------------------------------------------------- */
-/* 2. PC・スマホ共通の「操作ボタン」 */
+/* 2. PC・スマホ共通の「操作ボタン」（縮小・展開ボタン） */
 /* ---------------------------------------------------- */
 .mobile-btn {
     display: block;
@@ -57,14 +57,14 @@ body {
 #ui-panel, #legend-panel {
     position: absolute;
     background-color: rgba(255, 255, 255, 0.95);
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    border-radius: 8px; /* 角を少し丸く */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15); /* 綺麗な影を追加 */
     z-index: 1000;
     box-sizing: border-box;
 }
 
 /* ---------------------------------------------------- */
-/* 4. PC向けのパネル配置と挙動 */
+/* 4. PC向けのパネル配置と挙動（スクロール設定維持） */
 /* ---------------------------------------------------- */
 #ui-panel {
     top: 50px;
@@ -95,7 +95,7 @@ body {
 }
 
 /* ---------------------------------------------------- */
-/* 5. パネルの中身のスタイル */
+/* 5. パネルの中身のスタイル（見やすいデザインを適用） */
 /* ---------------------------------------------------- */
 #ui-panel h3 {
     font-size: 0.95em;
@@ -208,7 +208,7 @@ body {
 }
 
 /* ---------------------------------------------------- */
-/* 6. 画像とモーダル */
+/* 6. 画像とモーダル（指マーク・×ボタン完全復元） */
 /* ---------------------------------------------------- */
 .popup-img-box {
     display: block;
@@ -220,7 +220,7 @@ body {
     background-position: center;
     border-radius: 4px;
     margin-bottom: 8px;
-    cursor: pointer;
+    cursor: pointer; /* 指マーク */
     border: 1px solid #ddd;
 }
 
@@ -248,19 +248,36 @@ body {
     background-repeat: no-repeat;
 }
 
+/* 復活させた「閉じる（×）」ボタンのスタイル */
+.close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer; /* 指マーク */
+}
+
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+}
+
 /* ---------------------------------------------------- */
 /* 7. スマホ対応（画面幅600px以下） */
 /* ---------------------------------------------------- */
 @media (max-width: 600px) {
-    /* スマホ用ボタンの巨大化を防止する修正 */
     .mobile-btn {
-        position: fixed; /* absoluteから変更し、確実に画面に対して固定 */
+        position: fixed; 
         top: auto; 
         bottom: 15px;
         width: 45%;
-        height: 50px;       /* ★高さを50pxに絶対固定 */
-        line-height: 50px;  /* ★文字を縦の中央に配置 */
-        padding: 0;         /* ★余計な広がりをカット */
+        height: 50px;       
+        line-height: 50px;  
+        padding: 0;         
         border-radius: 25px;
         text-align: center;
         font-size: 16px;
@@ -269,16 +286,16 @@ body {
     #btn-legend { right: 3%; }
 
     #ui-panel, #legend-panel {
-        position: fixed; /* absoluteから変更 */
+        position: fixed; 
         top: auto;
-        bottom: 80px; /* 高さ50pxのボタンの上に配置 */
+        bottom: 80px; 
         left: 10px;
         right: 10px;
         width: calc(100% - 20px);
         max-width: none;
-        max-height: 50vh; /* パネルが開いても画面の半分までに制限 */
+        max-height: 50vh; 
         overflow-y: auto;
-        display: none; /* スマホの初期状態は確実に非表示 */
+        display: none; 
     }
 
     #ui-panel.show, #legend-panel.show {
