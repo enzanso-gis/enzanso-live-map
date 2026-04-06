@@ -208,7 +208,7 @@ body {
 }
 
 /* ---------------------------------------------------- */
-/* 6. 画像とモーダル（指マーク・×ボタン完全復元） */
+/* 6. 画像とモーダル（指マーク・×ボタン完全対応） */
 /* ---------------------------------------------------- */
 .popup-img-box {
     display: block;
@@ -248,8 +248,8 @@ body {
     background-repeat: no-repeat;
 }
 
-/* 復活させた「閉じる（×）」ボタンのスタイル */
-.close {
+/* HTMLのクラス名に合わせて「.close-modal」に修正！ */
+.close-modal {
     position: absolute;
     top: 15px;
     right: 35px;
@@ -258,10 +258,11 @@ body {
     font-weight: bold;
     transition: 0.3s;
     cursor: pointer; /* 指マーク */
+    z-index: 3001;
 }
 
-.close:hover,
-.close:focus {
+.close-modal:hover,
+.close-modal:focus {
     color: #bbb;
     text-decoration: none;
 }
@@ -270,7 +271,8 @@ body {
 /* 7. スマホ対応（画面幅600px以下） */
 /* ---------------------------------------------------- */
 @media (max-width: 600px) {
-    .mobile-btn {
+    /* PC用IDの「top:10px」に打ち勝つためにID指定で上書き！ */
+    #btn-menu, #btn-legend {
         position: fixed; 
         top: auto; 
         bottom: 15px;
@@ -281,6 +283,7 @@ body {
         border-radius: 25px;
         text-align: center;
         font-size: 16px;
+        z-index: 2000;
     }
     #btn-menu { left: 3%; }
     #btn-legend { right: 3%; }
