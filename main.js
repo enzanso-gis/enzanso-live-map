@@ -11,10 +11,40 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
     }
 
     const urlParams = new URLSearchParams(window.location.search);
+    
+    // 【復活】元の地図初期化用パラメータ
     const startLat = parseFloat(urlParams.get('lat')) || 36.3992; 
     const startLng = parseFloat(urlParams.get('lng')) || 137.7152; 
     const startZoom = parseInt(urlParams.get('zoom')) || 18; 
     const startTheme = urlParams.get('theme');
+
+    // 【追加】場所ジャンプ用パラメータ
+    const targetId = urlParams.get('ID'); 
+    const jumpContainer = document.getElementById('jump-control-container');
+    const jumpSelect = document.getElementById('jump-select');
+
+    if (targetId) {
+        let keysToShow = [];
+
+        if (targetId === '000') {
+            keysToShow = Object.keys(JUMP_LOCATIONS);
+        } else if (JUMP_GROUPS[targetId]) {
+            keysToShow = JUMP_GROUPS[targetId];
+        }
+
+        if (keysToShow.length > 0) {
+            jumpContainer.style.display = 'block';
+            keysToShow.forEach(key => {
+                const loc = JUMP_LOCATIONS[key];
+                if (loc) {
+                    const opt = document.createElement('option');
+                    opt.value = loc.coords;
+                    opt.textContent = loc.name;
+                    jumpSelect.appendChild(opt);
+                }
+            });
+        }
+    }
 
     if (startTheme) {
         const themeSelect = document.getElementById('map-theme');
@@ -23,6 +53,7 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         }
     }
 
+    // 地図の初期化処理（エラーが起きていた箇所）
     const map = L.map('map', { maxZoom: 22, zoomControl: false }).setView([startLat, startLng], startZoom);
     L.control.zoom({ position: 'topright' }).addTo(map);
     L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', { maxNativeZoom: 18, maxZoom: 22 }).addTo(map);
