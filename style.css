@@ -16,54 +16,54 @@ body {
     z-index: 1;
 }
 
-/* パネル共通スタイル */
+/* パネル共通スタイル（背景・角丸・影） */
 #ui-panel, #legend-panel {
     position: absolute;
     background-color: rgba(255, 255, 255, 0.95);
-    border-radius: 6px; /* 角丸も少し小さく */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.15);
     z-index: 1000;
     box-sizing: border-box;
 }
 
-/* UIパネル（極小化） */
+/* UIパネル（PC向けサイズ） */
 #ui-panel {
     top: 10px;
     left: 10px;
-    width: 240px; /* パネル幅をさらにスリムに */
-    padding: 10px 12px;
+    width: 280px;
+    padding: 12px 15px;
     max-height: calc(100vh - 20px);
     overflow-y: auto;
 }
 
-/* 凡例パネル（極小化） */
+/* 凡例パネル（PC向けサイズ） */
 #legend-panel {
     bottom: 20px;
     right: 10px;
-    padding: 10px 12px;
-    max-width: 240px;
+    padding: 12px 15px;
+    max-width: 260px;
 }
 
 /* 見出し */
 #ui-panel h3 {
-    font-size: 0.85em;
+    font-size: 0.95em;
     font-weight: 700;
     color: #333;
-    margin: 0 0 8px 0;
+    margin: 0 0 10px 0;
     border-bottom: 2px solid #38a169;
-    padding-bottom: 3px;
+    padding-bottom: 4px;
 }
 
 /* レイアウト */
 .control-group {
-    margin-bottom: 8px; /* 要素間の隙間を限界まで詰める */
+    margin-bottom: 10px;
 }
 
 /* ラベル */
 .control-group label {
     display: block;
-    margin-bottom: 2px;
-    font-size: 0.75em; /* かなり小さく */
+    margin-bottom: 3px;
+    font-size: 0.8em;
     font-weight: bold;
     color: #555;
 }
@@ -73,10 +73,10 @@ body {
 #ui-panel select {
     width: 100%;
     display: block;
-    padding: 4px 6px; /* 入力枠の高さも削る */
-    font-size: 0.8em;
+    padding: 6px 8px;
+    font-size: 0.85em;
     border: 1px solid #ccc;
-    border-radius: 3px;
+    border-radius: 4px;
     background-color: #fff;
     box-sizing: border-box;
     transition: border-color 0.2s;
@@ -90,9 +90,9 @@ body {
     appearance: none;
     background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23777%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%2E');
     background-repeat: no-repeat;
-    background-position: right 6px top 50%;
-    background-size: 0.5em auto;
-    padding-right: 18px;
+    background-position: right 8px top 50%;
+    background-size: 0.6em auto;
+    padding-right: 22px;
 }
 
 #ui-panel input[type="text"]:focus,
@@ -105,7 +105,7 @@ body {
 /* 場所のジャンプ枠 */
 #jump-control-container {
     display: flex;
-    gap: 4px;
+    gap: 5px;
 }
 
 #jump-control-container select {
@@ -117,15 +117,15 @@ body {
     white-space: nowrap;
 }
 
-/* ボタン */
+/* パネル内のボタン */
 #ui-panel button {
-    padding: 4px 8px;
-    font-size: 0.8em;
+    padding: 6px 10px;
+    font-size: 0.85em;
     font-weight: bold;
     color: #fff;
     background-color: #38a169;
     border: none;
-    border-radius: 3px;
+    border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
@@ -137,23 +137,23 @@ body {
 /* 凡例の中身 */
 .legend-title {
     font-weight: bold;
-    margin-bottom: 5px;
-    font-size: 0.8em;
+    margin-bottom: 6px;
+    font-size: 0.85em;
     color: #333;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    margin-bottom: 3px;
-    font-size: 0.75em;
+    margin-bottom: 4px;
+    font-size: 0.8em;
     color: #555;
 }
 
 .color-box {
-    width: 10px; /* 色の箱も小さく */
-    height: 10px;
-    margin-right: 5px;
+    width: 12px;
+    height: 12px;
+    margin-right: 6px;
     border: 1px solid rgba(0,0,0,0.15);
     border-radius: 2px;
 }
@@ -162,16 +162,54 @@ body {
     border-radius: 50%;
 }
 
-/* スマホ対応 */
+/* --- スマホ用ボタン（PCでは非表示） --- */
+.mobile-btn {
+    display: none; /* デフォルト（PC）では隠す */
+}
+
+/* --- スマホ対応（画面幅600px以下） --- */
 @media (max-width: 600px) {
-    #ui-panel {
-        width: calc(100% - 20px);
-        max-height: 40vh; /* スマホでもなるべく地図を隠さないように */
+    /* 1. スマホ用ボタンのデザインと配置 */
+    .mobile-btn {
+        display: block; /* スマホで表示 */
+        position: absolute;
+        bottom: 15px;
+        z-index: 2000;
+        padding: 12px 10px;
+        font-size: 0.95em;
+        font-weight: bold;
+        color: #fff;
+        background-color: #38a169;
+        border: none;
+        border-radius: 25px; /* 丸みのあるボタン */
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        cursor: pointer;
+        width: 46%; /* 横に2つ並べるために幅を指定 */
+        text-align: center;
     }
-    #legend-panel {
-        bottom: 20px;
-        right: 10px;
+
+    #btn-menu {
+        left: 2%; /* 左側に配置 */
+    }
+
+    #btn-legend {
+        right: 2%; /* 右側に配置 */
+    }
+
+    /* 2. パネルの初期状態を「非表示」かつ「下部配置」にする */
+    #ui-panel, #legend-panel {
+        top: auto;
+        bottom: 70px; /* ボタンの上に配置 */
         left: 10px;
-        max-width: calc(100% - 20px);
+        right: 10px;
+        width: calc(100% - 20px);
+        max-width: none;
+        max-height: 55vh;
+        display: none; /* デフォルトでは見えない */
+    }
+
+    /* 3. Javascriptで .show クラスが付与されたら表示する */
+    #ui-panel.show, #legend-panel.show {
+        display: block;
     }
 }
