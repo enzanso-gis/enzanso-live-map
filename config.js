@@ -22,14 +22,14 @@ const JUMP_LOCATIONS = {
 // IDによるグループ定義
 const JUMP_GROUPS = {
     // 000 はプログラム側で「すべて」として処理します
-    "001": [] // 北海道
-    "002": [] // 東北
-    "003": ["nishidake"] // 関東
-    "004": [] // 中部
-    "005": [] // 近畿
-    "006": [] // 中国
-    "007": [] // 四国
-    "008": ["sobosan","karakunidake","hirakikidake"] // 九州
-    "009": [] // 沖縄
-    "100": ["enzanso","ariakeso","daitenso","hyuttenisidake","hyutteooyari","kassenkoya"],  // 燕山荘グループ
+    "001": [], // 北海道
+    "002": [], // 東北
+    "003": ["nishidake"], // 関東
+    "004": [], // 中部
+    "005": [], // 近畿
+    "006": [], // 中国
+    "007": [], // 四国
+    "008": ["sobosan","karakunidake","hirakikidake"], // 九州
+    "009": [], // 沖縄
+    "100": ["enzanso","ariakeso","daitenso","hyuttenisidake","hyutteooyari","kassenkoya"]  // 燕山荘グループ
 };

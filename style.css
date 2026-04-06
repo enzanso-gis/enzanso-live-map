@@ -1,62 +1,177 @@
-        body { margin: 0; padding: 0; font-family: sans-serif; }
-        #map { width: 100vw; height: 100vh; }
-        
-        #ui-panel { position: absolute; top: 10px; left: 10px; z-index: 1000; background: rgba(255, 255, 255, 0.95); padding: 15px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); width: 300px; max-height: 85vh; overflow-y: auto; transition: transform 0.3s ease; }
-        #legend-panel { position: absolute; bottom: 20px; right: 10px; z-index: 1000; background: rgba(255, 255, 255, 0.95); padding: 12px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); font-size: 12px; max-height: 80vh; overflow-y: auto; }
-        .mobile-btn { display: none; position: absolute; bottom: 20px; z-index: 2000; background: #2c3e50; color: white; border: none; padding: 12px 20px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; }
+/* ベーススタイルとフォント */
+body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
 
-        h3 { margin: 0 0 10px 0; font-size: 15px; color: #333; border-bottom: 2px solid #2c3e50; padding-bottom: 5px;}
-        .control-group { margin-bottom: 12px; }
-        label { font-size: 12px; font-weight: bold; color: #555; display: block; margin-bottom: 2px;}
-        select { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px;}
-        button.jump-btn { width: 100%; padding: 10px; margin-top: 5px; background: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px;}
-        button.jump-btn:hover { background: #1a252f; }
-        
-        .legend-title { font-weight: bold; color: #333; margin-bottom: 8px; font-size: 13px; }
-        .legend-item { display: flex; align-items: center; margin-bottom: 5px; color: #555; }
-        .color-box { width: 15px; height: 15px; margin-right: 8px; border: 1px solid #999; }
-        .circle-box { border-radius: 50%; } 
+#map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+}
 
-        .modal {
-            display: none; position: fixed; z-index: 2000;
-            padding-top: 30px; left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.9);
-            user-select: none;
-        }
-        
-        #modalImage {
-            margin: auto; display: block; width: 90%; max-width: 1000px; height: 85vh;
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            border-radius: 5px; cursor: zoom-out;
-        }
+/* パネル共通スタイル */
+#ui-panel, #legend-panel {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 6px; /* 角丸も少し小さく */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 1000;
+    box-sizing: border-box;
+}
 
-        .close-modal {
-            position: absolute; top: 15px; right: 35px; color: #f1f1f1;
-            font-size: 40px; font-weight: bold; transition: 0.3s; cursor: pointer;
-            z-index: 2020;
-        }
-        .close-modal:hover { color: #bbb; }
+/* UIパネル（極小化） */
+#ui-panel {
+    top: 10px;
+    left: 10px;
+    width: 240px; /* パネル幅をさらにスリムに */
+    padding: 10px 12px;
+    max-height: calc(100vh - 20px);
+    overflow-y: auto;
+}
 
-        .popup-img-box {
-            width: 100%; height: 200px; 
-            background-size: cover; background-position: center; 
-            border-radius: 5px; margin-bottom: 8px; cursor: zoom-in;
-        }
+/* 凡例パネル（極小化） */
+#legend-panel {
+    bottom: 20px;
+    right: 10px;
+    padding: 10px 12px;
+    max-width: 240px;
+}
 
-        @media (max-width: 600px) {
-            #btn-menu { display: block; left: 10px; }
-            #btn-legend { display: block; right: 10px; }
-            #ui-panel { top: auto; bottom: 80px; left: 50%; transform: translateX(-50%); width: 90%; max-height: 60vh; display: none; }
-            #ui-panel.show { display: block; }
-            #legend-panel { bottom: 80px; right: 10px; max-height: 40vh; display: none; }
-            #legend-panel.show { display: block; }
-            .leaflet-control-zoom { display: none; }
+/* 見出し */
+#ui-panel h3 {
+    font-size: 0.85em;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 8px 0;
+    border-bottom: 2px solid #38a169;
+    padding-bottom: 3px;
+}
 
-            #modalImage { width: 100%; height: 75vh; margin-top: 20px;}
-            .close-modal { right: 20px; top: 5px; }
+/* レイアウト */
+.control-group {
+    margin-bottom: 8px; /* 要素間の隙間を限界まで詰める */
+}
 
-            .popup-img-box { height: 110px; margin-bottom: 5px; }
-            .leaflet-popup-content { font-size: 11px; margin: 10px; line-height: 1.3; }
-            .leaflet-popup-content b { font-size: 12px; }
-            hr { margin: 4px 0; border: 0; border-top: 1px dashed #ccc; }
-        }
+/* ラベル */
+.control-group label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 0.75em; /* かなり小さく */
+    font-weight: bold;
+    color: #555;
+}
+
+/* 入力・選択肢の共通スタイル */
+#ui-panel input[type="text"],
+#ui-panel select {
+    width: 100%;
+    display: block;
+    padding: 4px 6px; /* 入力枠の高さも削る */
+    font-size: 0.8em;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background-color: #fff;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+/* 選択枠（ドロップダウン）のカスタムデザイン */
+#ui-panel select {
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23777%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%2E');
+    background-repeat: no-repeat;
+    background-position: right 6px top 50%;
+    background-size: 0.5em auto;
+    padding-right: 18px;
+}
+
+#ui-panel input[type="text"]:focus,
+#ui-panel select:focus {
+    outline: none;
+    border-color: #38a169;
+    box-shadow: 0 0 0 2px rgba(56, 161, 105, 0.2);
+}
+
+/* 場所のジャンプ枠 */
+#jump-control-container {
+    display: flex;
+    gap: 4px;
+}
+
+#jump-control-container select {
+    margin-bottom: 0;
+}
+
+#jump-control-container button {
+    width: auto;
+    white-space: nowrap;
+}
+
+/* ボタン */
+#ui-panel button {
+    padding: 4px 8px;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: #fff;
+    background-color: #38a169;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#ui-panel button:hover {
+    background-color: #2f855a;
+}
+
+/* 凡例の中身 */
+.legend-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 0.8em;
+    color: #333;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 3px;
+    font-size: 0.75em;
+    color: #555;
+}
+
+.color-box {
+    width: 10px; /* 色の箱も小さく */
+    height: 10px;
+    margin-right: 5px;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 2px;
+}
+
+.circle-box {
+    border-radius: 50%;
+}
+
+/* スマホ対応 */
+@media (max-width: 600px) {
+    #ui-panel {
+        width: calc(100% - 20px);
+        max-height: 40vh; /* スマホでもなるべく地図を隠さないように */
+    }
+    #legend-panel {
+        bottom: 20px;
+        right: 10px;
+        left: 10px;
+        max-width: calc(100% - 20px);
+    }
+}

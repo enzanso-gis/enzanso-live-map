@@ -1,4 +1,4 @@
-function toggleMenu() { document.getElementById('ui-panel').classList.toggle('show'); }
+    function toggleMenu() { document.getElementById('ui-panel').classList.toggle('show'); }
     function toggleLegend() { document.getElementById('legend-panel').classList.toggle('show'); }
 
     if (typeof THEME_CONFIG !== 'undefined') {
