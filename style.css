@@ -1,4 +1,6 @@
-/* ベーススタイルとフォント */
+/* ---------------------------------------------------- */
+/* 1. ベーススタイルとフォント */
+/* ---------------------------------------------------- */
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     color: #333;
@@ -16,7 +18,43 @@ body {
     z-index: 1;
 }
 
-/* パネル共通スタイル（背景・角丸・影） */
+/* ---------------------------------------------------- */
+/* 2. PC・スマホ共通の「操作ボタン」 */
+/* ---------------------------------------------------- */
+.mobile-btn {
+    display: block; /* ★PCでも常にボタンを表示する */
+    position: absolute;
+    z-index: 2000;
+    padding: 8px 12px;
+    font-size: 0.9em;
+    font-weight: bold;
+    color: #fff;
+    background-color: #38a169;
+    border: none;
+    border-radius: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.mobile-btn:hover {
+    background-color: #2f855a;
+}
+
+/* PC画面でのボタン配置 */
+#btn-menu {
+    top: 10px;
+    left: 10px;
+}
+
+#btn-legend {
+    bottom: 20px;
+    right: 10px;
+}
+
+/* ---------------------------------------------------- */
+/* 3. パネル共通スタイル */
+/* ---------------------------------------------------- */
 #ui-panel, #legend-panel {
     position: absolute;
     background-color: rgba(255, 255, 255, 0.95);
@@ -26,25 +64,41 @@ body {
     box-sizing: border-box;
 }
 
-/* UIパネル（PC向けサイズ） */
+/* ---------------------------------------------------- */
+/* 4. PC向けのパネル配置と「縮小(非表示)」の挙動 */
+/* ---------------------------------------------------- */
+
+/* UIパネル */
 #ui-panel {
-    top: 10px;
+    top: 50px; /* メニューボタンのすぐ下に配置 */
     left: 10px;
     width: 280px;
     padding: 12px 15px;
-    max-height: calc(100vh - 20px);
+    max-height: calc(100vh - 70px);
     overflow-y: auto;
+    display: block; /* ★PCでは通常「表示」 */
+}
+/* JavaScriptでボタンが押され .show が付いた時、PCでは「非表示(縮小)」になる */
+#ui-panel.show {
+    display: none;
 }
 
-/* 凡例パネル（PC向けサイズ） */
+/* 凡例パネル */
 #legend-panel {
-    bottom: 20px;
+    bottom: 60px; /* 凡例ボタンのすぐ上に配置 */
     right: 10px;
     padding: 12px 15px;
     max-width: 260px;
+    display: block; /* ★PCでは通常「表示」 */
+}
+/* JavaScriptでボタンが押され .show が付いた時、PCでは「非表示(縮小)」になる */
+#legend-panel.show {
+    display: none;
 }
 
-/* 見出し */
+/* ---------------------------------------------------- */
+/* 5. パネルの中身のスタイル（ラベル、入力欄、凡例など） */
+/* ---------------------------------------------------- */
 #ui-panel h3 {
     font-size: 0.95em;
     font-weight: 700;
@@ -54,12 +108,10 @@ body {
     padding-bottom: 4px;
 }
 
-/* レイアウト */
 .control-group {
     margin-bottom: 10px;
 }
 
-/* ラベル */
 .control-group label {
     display: block;
     margin-bottom: 3px;
@@ -68,7 +120,6 @@ body {
     color: #555;
 }
 
-/* 入力・選択肢の共通スタイル */
 #ui-panel input[type="text"],
 #ui-panel select {
     width: 100%;
@@ -82,7 +133,6 @@ body {
     transition: border-color 0.2s;
 }
 
-/* 選択枠（ドロップダウン）のカスタムデザイン */
 #ui-panel select {
     cursor: pointer;
     -webkit-appearance: none;
@@ -102,7 +152,6 @@ body {
     box-shadow: 0 0 0 2px rgba(56, 161, 105, 0.2);
 }
 
-/* 場所のジャンプ枠 */
 #jump-control-container {
     display: flex;
     gap: 5px;
@@ -117,7 +166,6 @@ body {
     white-space: nowrap;
 }
 
-/* パネル内のボタン */
 #ui-panel button {
     padding: 6px 10px;
     font-size: 0.85em;
@@ -134,7 +182,6 @@ body {
     background-color: #2f855a;
 }
 
-/* 凡例の中身 */
 .legend-title {
     font-weight: bold;
     margin-bottom: 6px;
@@ -162,53 +209,74 @@ body {
     border-radius: 50%;
 }
 
-/* --- スマホ用ボタン（PCでは非表示） --- */
-.mobile-btn {
-    display: none; /* デフォルト（PC）では隠す */
+/* ---------------------------------------------------- */
+/* 6. 画像とモーダル（拡大画面）※絶対に消しません */
+/* ---------------------------------------------------- */
+.popup-img-box {
+    width: 100%;
+    height: 140px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    border: 1px solid #ddd;
 }
 
-/* --- スマホ対応（画面幅600px以下） --- */
+.popup-img-box:hover {
+    opacity: 0.9;
+}
+
+#imageModal {
+    display: none;
+    position: fixed;
+    z-index: 3000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
+#modalImage {
+    width: 90%;
+    height: 90%;
+    margin: 5vh auto;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* ---------------------------------------------------- */
+/* 7. スマホ対応（画面幅600px以下） */
+/* ---------------------------------------------------- */
 @media (max-width: 600px) {
-    /* 1. スマホ用ボタンのデザインと配置 */
+    /* スマホではボタンを丸くして画面下に2つ並べる */
     .mobile-btn {
-        display: block; /* スマホで表示 */
-        position: absolute;
+        top: auto; 
         bottom: 15px;
-        z-index: 2000;
+        width: 46%;
+        border-radius: 25px;
+        text-align: center;
         padding: 12px 10px;
         font-size: 0.95em;
-        font-weight: bold;
-        color: #fff;
-        background-color: #38a169;
-        border: none;
-        border-radius: 25px; /* 丸みのあるボタン */
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        cursor: pointer;
-        width: 46%; /* 横に2つ並べるために幅を指定 */
-        text-align: center;
     }
+    #btn-menu { left: 2%; }
+    #btn-legend { right: 2%; }
 
-    #btn-menu {
-        left: 2%; /* 左側に配置 */
-    }
-
-    #btn-legend {
-        right: 2%; /* 右側に配置 */
-    }
-
-    /* 2. パネルの初期状態を「非表示」かつ「下部配置」にする */
+    /* スマホでのパネル位置と初期状態 */
     #ui-panel, #legend-panel {
         top: auto;
-        bottom: 70px; /* ボタンの上に配置 */
+        bottom: 70px;
         left: 10px;
         right: 10px;
         width: calc(100% - 20px);
         max-width: none;
         max-height: 55vh;
-        display: none; /* デフォルトでは見えない */
+        display: none; /* ★スマホでは通常「非表示」 */
     }
 
-    /* 3. Javascriptで .show クラスが付与されたら表示する */
+    /* JavaScriptでボタンが押され .show が付いた時、スマホでは「表示」になる（PCと逆！） */
     #ui-panel.show, #legend-panel.show {
         display: block;
     }
