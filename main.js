@@ -237,8 +237,7 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
                 <div class="legend-item"><div class="color-box" style="background:#FFFF00;"></div>3 (良好)</div>
                 <div class="legend-item"><div class="color-box" style="background:#FFA500;"></div>2 (やや弱い)</div>
                 <div class="legend-item"><div class="color-box" style="background:#FF0000;"></div>1 (非常に弱い)</div>
-                <div class="legend-item"><div class="color-box" style="background:#808080;"></div>0 (圏外・測定不可)</div>
-                <div class="legend-item"><div class="color-box" style="background:#1E90FF;"></div>衛星 (Starlink等)</div>`;
+                <div class="legend-item"><div class="color-box" style="background:#808080;"></div>0 (圏外・測定不可)</div>`;
         }
         
         if ((mapTheme === 'flower' || mapTheme === 'ALL') && isActive('flower')) {
