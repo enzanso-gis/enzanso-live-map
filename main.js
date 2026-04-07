@@ -1,4 +1,4 @@
-    function toggleMenu() { document.getElementById('ui-panel').classList.toggle('show'); }
+function toggleMenu() { document.getElementById('ui-panel').classList.toggle('show'); }
     function toggleLegend() { document.getElementById('legend-panel').classList.toggle('show'); }
 
     if (typeof THEME_CONFIG !== 'undefined') {
@@ -12,13 +12,11 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     
-    // 【復活】元の地図初期化用パラメータ
     const startLat = parseFloat(urlParams.get('lat')) || 36.3992; 
     const startLng = parseFloat(urlParams.get('lng')) || 137.7152; 
     const startZoom = parseInt(urlParams.get('zoom')) || 18; 
     const startTheme = urlParams.get('theme');
 
-    // 【追加】場所ジャンプ用パラメータ
     const targetId = urlParams.get('ID'); 
     const jumpContainer = document.getElementById('jump-control-container');
     const jumpSelect = document.getElementById('jump-select');
@@ -53,10 +51,14 @@
         }
     }
 
-    // 地図の初期化処理（エラーが起きていた箇所）
+    // 地図の初期化（★国土地理院のクレジット表示を追加しました）
     const map = L.map('map', { maxZoom: 22, zoomControl: false }).setView([startLat, startLng], startZoom);
     L.control.zoom({ position: 'topright' }).addTo(map);
-    L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', { maxNativeZoom: 18, maxZoom: 22 }).addTo(map);
+    L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', { 
+        maxNativeZoom: 18, 
+        maxZoom: 22,
+        attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank">国土地理院 地理院地図</a>'
+    }).addTo(map);
 
     map.createPane('gridPane');
     map.getPane('gridPane').style.zIndex = 400; 
@@ -112,8 +114,9 @@
         { url: 'data/animal_survey.geojson', type: 'animal' } 
     ];
 
+    // ★オフライン時にキャッシュから読めるよう、「?t=」を削除しました
     Promise.all(dataSources.map(source => 
-        fetch(source.url + '?t=' + new Date().getTime()).then(res => res.json()).then(data => {
+        fetch(source.url).then(res => res.json()).then(data => {
             data.features.forEach(f => f.properties.surveyType = source.type);
             return data.features;
         }).catch(err => [])
@@ -217,7 +220,7 @@
         
         allFeatures.forEach(f => {
             if (f.properties.surveyType === theme) {
-                const name = getProp(f.properties, 'name') || getProp(f.properties, '名前');
+                const name = getProp(f.properties, 'name') || getProp(props, '名前');
                 if (name) speciesSet.add(name);
                 
                 const weather = getProp(f.properties, 'weather') || getProp(f.properties, '天気');
@@ -279,7 +282,6 @@
             const natureDateGroup = document.getElementById('filter-nature-date-group');
 
             if(speciesLabel) {
-                // ★開花と紅葉のときは天気と日付を隠す
                 if (mapTheme === 'flower') {
                     speciesLabel.innerText = '🌸 植物の種類';
                     if(natureWeatherGroup) natureWeatherGroup.style.display = 'none';
@@ -290,7 +292,6 @@
                     if(natureWeatherGroup) natureWeatherGroup.style.display = 'none';
                     if(natureDateGroup) natureDateGroup.style.display = 'none';
                 }
-                // ★動物のときは表示する
                 else if (mapTheme === 'animal') {
                     speciesLabel.innerText = '🐾 動物の種類';
                     if(natureWeatherGroup) natureWeatherGroup.style.display = 'block';
@@ -436,7 +437,6 @@
                 const name = getProp(props, 'name') || getProp(props, '名前');
                 if (selectedSpecies !== "ALL" && name !== selectedSpecies) return false;
 
-                // ★動物（animal）のときのみ天気と日付の絞り込みを適用する
                 if (surveyType === 'animal') {
                     const fWeather = getProp(props, 'weather') || getProp(props, '天気');
                     if (selectedNatureWeather !== "ALL" && fWeather !== selectedNatureWeather) return false;
@@ -670,4 +670,54 @@
     function closeModal() {
         document.getElementById("imageModal").style.display = "none";
         document.getElementById("modalImage").style.backgroundImage = "none";
+    }
+
+    // ==========================================
+    // ★ オフライン管理用の追加機能
+    // ==========================================
+    function openOfflineManager() {
+        document.getElementById('offlineModal').style.display = 'block';
+        checkCacheStatus();
+    }
+
+    function closeOfflineManager() {
+        document.getElementById('offlineModal').style.display = 'none';
+    }
+
+    async function checkCacheStatus() {
+        const statusDiv = document.getElementById('offline-status');
+        if ('caches' in window) {
+            try {
+                const cache = await caches.open('mountain-live-map-v1');
+                const keys = await cache.keys();
+                let mapTiles = 0, dataFiles = 0, otherFiles = 0;
+
+                keys.forEach(request => {
+                    if (request.url.includes('cyberjapandata.gsi.go.jp')) mapTiles++;
+                    else if (request.url.includes('.geojson')) dataFiles++;
+                    else otherFiles++;
+                });
+
+                statusDiv.innerHTML = `
+                    <b>現在の保存状況</b><hr style="margin:5px 0;">
+                    🗺️ 地図の画像: <b>${mapTiles}</b> 枚<br>
+                    📊 調査データ: <b>${dataFiles}</b> 件<br>
+                    ⚙️ システム: <b>${otherFiles}</b> 件<br>
+                `;
+            } catch (e) {
+                statusDiv.innerHTML = '状態を取得できませんでした。';
+            }
+        } else {
+            statusDiv.innerHTML = 'お使いのブラウザはオフライン保存に対応していません。';
+        }
+    }
+
+    async function clearOfflineData() {
+        if(confirm('保存されているデータをすべて削除しますか？\n（※削除しても、電波のある場所で地図を開けば自動的に再保存されます）')) {
+            if ('caches' in window) {
+                await caches.delete('mountain-live-map-v1');
+                alert('すべてのオフラインデータを削除しました。');
+                checkCacheStatus();
+            }
+        }
     }

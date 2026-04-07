@@ -21,12 +21,14 @@
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
     <link rel="stylesheet" href="style.css" />
-
 </head>
 <body oncontextmenu="return false;" ondragstart="return false;">
 
-<button id="btn-menu" class="mobile-btn" onclick="toggleMenu()">⚙️ メニュー</button>
-<button id="btn-legend" class="mobile-btn" onclick="toggleLegend()">📖 凡例</button>
+<div id="mobile-controls-wrapper">
+    <button id="btn-menu" class="mobile-btn" onclick="toggleMenu()">⚙️ 条件</button>
+    <button id="btn-download" class="mobile-btn" onclick="openOfflineManager()">💾 管理</button>
+    <button id="btn-legend" class="mobile-btn" onclick="toggleLegend()">📖 凡例</button>
+</div>
 
 <div id="ui-panel">
     <h3>🔍 絞り込み ＆ 表示切り替え</h3>
@@ -134,7 +136,34 @@
     <div id="modalImage"></div>
 </div>
 
-<script src="config.js"></script> <script src="main.js"></script>
+<div id="offlineModal">
+    <div class="offline-modal-content">
+        <span class="offline-close" onclick="closeOfflineManager()">&times;</span>
+        <h3 style="margin-top:0; border-bottom: 2px solid #38a169; padding-bottom: 5px; color: #333;">💾 保存データ管理</h3>
+        <p style="font-size: 0.85em; color: #555;">
+            電波のある場所で地図を表示すると、自動的にスマホの保護領域内にデータが暗号化保存され、圏外でも確認できるようになります。
+        </p>
+        <div id="offline-status" style="background:#f9f9f9; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em; color:#333;">
+            読込中...
+        </div>
+        <button onclick="clearOfflineData()" style="width: 100%; padding: 10px; background-color: #e74c3c; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+            🗑️ 端末内の保存データを一括削除
+        </button>
+    </div>
+</div>
+
+<script src="config.js"></script> 
+<script src="main.js"></script>
+
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => console.log('オフライン機能待機中'))
+                .catch(error => console.log('オフライン機能の準備に失敗:', error));
+        });
+    }
+</script>
 
 </body>
 </html>
