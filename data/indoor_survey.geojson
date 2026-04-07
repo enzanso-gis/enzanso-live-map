@@ -69,6 +69,7 @@
 { "type": "Feature", "properties": { "Building": "その他", "Floor": "2F", "Carrier": "au", "SignalLevel": 3 }, "geometry": { "type": "Point", "coordinates": [ 139.180782326703024, 35.871583714242746 ] } },
 { "type": "Feature", "properties": { "Building": "その他", "Floor": "2F", "Carrier": "au", "SignalLevel": 3 }, "geometry": { "type": "Point", "coordinates": [ 139.180760171161523, 35.871377395118145 ] } },
 { "type": "Feature", "properties": { "Building": "その他", "Floor": "1F", "Carrier": "au", "SignalLevel": 3 }, "geometry": { "type": "Point", "coordinates": [ 139.18066699645064, 35.87152736722765 ] } },
-{ "type": "Feature", "properties": { "Building": "その他", "Floor": "1F", "Carrier": "au", "SignalLevel": 3 }, "geometry": { "type": "Point", "coordinates": [ 139.180779320007048, 35.871375497979528 ] } }
+{ "type": "Feature", "properties": { "Building": "その他", "Floor": "1F", "Carrier": "au", "SignalLevel": 3 }, "geometry": { "type": "Point", "coordinates": [ 139.180779320007048, 35.871375497979528 ] } },
+{ "type": "Feature", "properties": { "Building": "その他", "Floor": "1F", "Carrier": "au", "SignalLevel": 4 }, "geometry": { "type": "Point", "coordinates": [ 139.180693755043308, 35.871557773998923 ] } }
 ]
 }

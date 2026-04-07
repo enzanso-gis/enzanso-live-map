@@ -65,6 +65,26 @@
           0.0
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{38dd5fde-f991-4b02-9b28-07866da3d898}",
+        "name": "パンジー",
+        "status": "散り始め",
+        "radius_m": 100.0,
+        "date": "2026-04-06",
+        "photo": "https://drive.google.com/thumbnail?id=1uGeqTwZtGtPEBfbfZLIvC2igQj0iAEQ6&sz=w800",
+        "memo": "はじめ"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.1808035084189,
+          35.86759976747775,
+          0.0
+        ]
+      }
     }
   ]
 }
