@@ -51,7 +51,6 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         }
     }
 
-    // 地図の初期化（★国土地理院のクレジット表示を追加しました）
     const map = L.map('map', { maxZoom: 22, zoomControl: false }).setView([startLat, startLng], startZoom);
     L.control.zoom({ position: 'topright' }).addTo(map);
     L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', { 
@@ -114,7 +113,6 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         { url: 'data/animal_survey.geojson', type: 'animal' } 
     ];
 
-    // ★オフライン時にキャッシュから読めるよう、「?t=」を削除しました
     Promise.all(dataSources.map(source => 
         fetch(source.url).then(res => res.json()).then(data => {
             data.features.forEach(f => f.properties.surveyType = source.type);
@@ -220,7 +218,7 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         
         allFeatures.forEach(f => {
             if (f.properties.surveyType === theme) {
-                const name = getProp(f.properties, 'name') || getProp(props, '名前');
+                const name = getProp(f.properties, 'name') || getProp(f.properties, '名前');
                 if (name) speciesSet.add(name);
                 
                 const weather = getProp(f.properties, 'weather') || getProp(f.properties, '天気');
@@ -673,7 +671,7 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
     }
 
     // ==========================================
-    // ★ オフライン管理用の追加機能（バージョン自動対応版）
+    // ★ オフライン管理用の追加機能（警告画面なし・自動バージョン対応）
     // ==========================================
     function openOfflineManager() {
         document.getElementById('offlineModal').style.display = 'block';
@@ -689,12 +687,9 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         if ('caches' in window) {
             try {
                 let mapTiles = 0, dataFiles = 0, otherFiles = 0;
-                
-                // ブラウザ内のすべてのキャッシュフォルダを確認
                 const cacheNames = await caches.keys();
                 
                 for (let cacheName of cacheNames) {
-                    // mountain-live-map から始まるフォルダをすべて対象にする
                     if (cacheName.startsWith('mountain-live-map-')) {
                         const cache = await caches.open(cacheName);
                         const requests = await cache.keys();
@@ -708,10 +703,10 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
                 }
 
                 statusDiv.innerHTML = `
-                    <b>現在の保存状況</b><hr style="margin:5px 0;">
-                    🗺️ 地図の画像: <b>${mapTiles}</b> 枚<br>
-                    📊 調査データ: <b>${dataFiles}</b> 件<br>
-                    ⚙️ システム: <b>${otherFiles}</b> 件<br>
+                    <b>現在の保存状況</b><hr style="margin:5px 0; border:0; border-top:1px solid #ddd;">
+                    🗺️ 地図の画像: <b style="color:#38a169;">${mapTiles}</b> 枚<br>
+                    📊 調査データ: <b style="color:#38a169;">${dataFiles}</b> 件<br>
+                    ⚙️ システム: <b style="color:#38a169;">${otherFiles}</b> 件<br>
                 `;
             } catch (e) {
                 statusDiv.innerHTML = '状態を取得できませんでした。';
@@ -722,17 +717,32 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
     }
 
     async function clearOfflineData() {
-        if(confirm('保存されているデータをすべて削除しますか？\n（※削除しても、電波のある場所で地図を開けば自動的に再保存されます）')) {
-            if ('caches' in window) {
-                const cacheNames = await caches.keys();
-                for (let cacheName of cacheNames) {
-                    // mountain-live-map から始まるフォルダをすべて削除
-                    if (cacheName.startsWith('mountain-live-map-')) {
-                        await caches.delete(cacheName);
-                    }
+        const btn = document.getElementById('btn-clear-cache');
+        const originalText = btn.innerHTML;
+        
+        // ボタンを押している感のあるアニメーション（ポップアップ回避）
+        btn.innerHTML = '⏳ 削除中...';
+        btn.disabled = true;
+        
+        if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            for (let cacheName of cacheNames) {
+                if (cacheName.startsWith('mountain-live-map-')) {
+                    await caches.delete(cacheName);
                 }
-                alert('すべてのオフラインデータを削除しました。');
-                checkCacheStatus(); // 削除後に表示を0件に更新
             }
+            
+            await checkCacheStatus();
+            
+            // 削除完了をボタンの色と文字で伝える
+            btn.innerHTML = '✅ 削除完了しました';
+            btn.style.backgroundColor = '#38a169'; 
+            
+            // 2.5秒後に元のボタンに戻す
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.backgroundColor = '#e74c3c';
+                btn.disabled = false;
+            }, 2500);
         }
     }
