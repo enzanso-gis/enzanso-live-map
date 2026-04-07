@@ -673,7 +673,7 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
     }
 
     // ==========================================
-    // ★ オフライン管理用の追加機能
+    // ★ オフライン管理用の追加機能（バージョン自動対応版）
     // ==========================================
     function openOfflineManager() {
         document.getElementById('offlineModal').style.display = 'block';
@@ -688,15 +688,24 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         const statusDiv = document.getElementById('offline-status');
         if ('caches' in window) {
             try {
-                const cache = await caches.open('mountain-live-map-v1');
-                const keys = await cache.keys();
                 let mapTiles = 0, dataFiles = 0, otherFiles = 0;
+                
+                // ブラウザ内のすべてのキャッシュフォルダを確認
+                const cacheNames = await caches.keys();
+                
+                for (let cacheName of cacheNames) {
+                    // mountain-live-map から始まるフォルダをすべて対象にする
+                    if (cacheName.startsWith('mountain-live-map-')) {
+                        const cache = await caches.open(cacheName);
+                        const requests = await cache.keys();
 
-                keys.forEach(request => {
-                    if (request.url.includes('cyberjapandata.gsi.go.jp')) mapTiles++;
-                    else if (request.url.includes('.geojson')) dataFiles++;
-                    else otherFiles++;
-                });
+                        requests.forEach(request => {
+                            if (request.url.includes('cyberjapandata.gsi.go.jp')) mapTiles++;
+                            else if (request.url.includes('.geojson')) dataFiles++;
+                            else otherFiles++;
+                        });
+                    }
+                }
 
                 statusDiv.innerHTML = `
                     <b>現在の保存状況</b><hr style="margin:5px 0;">
@@ -715,9 +724,15 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
     async function clearOfflineData() {
         if(confirm('保存されているデータをすべて削除しますか？\n（※削除しても、電波のある場所で地図を開けば自動的に再保存されます）')) {
             if ('caches' in window) {
-                await caches.delete('mountain-live-map-v1');
+                const cacheNames = await caches.keys();
+                for (let cacheName of cacheNames) {
+                    // mountain-live-map から始まるフォルダをすべて削除
+                    if (cacheName.startsWith('mountain-live-map-')) {
+                        await caches.delete(cacheName);
+                    }
+                }
                 alert('すべてのオフラインデータを削除しました。');
-                checkCacheStatus();
+                checkCacheStatus(); // 削除後に表示を0件に更新
             }
         }
     }
