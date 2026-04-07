@@ -7,7 +7,6 @@
       "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
     }
   },
-  "xy_coordinate_resolution": 1e-06,
   "features": [
     {
       "type": "Feature",
@@ -23,8 +22,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          139.180804,
-          35.8676
+          139.1808035084189,
+          35.86759976747775
         ]
       }
     },
@@ -42,8 +41,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          139.172063,
-          35.869765
+          139.17206325285136,
+          35.86976515751983
         ]
       }
     },
@@ -61,8 +60,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          139.172063,
-          35.869765,
+          139.17206325285136,
+          35.86976515751983,
           0.0
         ]
       }

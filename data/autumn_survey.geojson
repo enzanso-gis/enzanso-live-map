@@ -7,7 +7,6 @@
       "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
     }
   },
-  "xy_coordinate_resolution": 1e-06,
   "features": [
     {
       "type": "Feature",
@@ -23,8 +22,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          139.155175,
-          35.858665,
+          139.15517469677044,
+          35.858665095813784,
           0.0
         ]
       }
@@ -43,8 +42,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          139.163504,
-          35.850915,
+          139.16350365609227,
+          35.85091510657475,
           0.0
         ]
       }
@@ -63,8 +62,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          139.163504,
-          35.850915,
+          139.16350365609227,
+          35.85091510657475,
           0.0
         ]
       }
@@ -83,8 +82,28 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          139.155175,
-          35.858665,
+          139.15517469677044,
+          35.858665095813784,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{16c551b0-ef8d-4801-9df4-7c220f59f870}",
+        "name": "棒ノ嶺山頂",
+        "status": "落葉",
+        "radius_m": 500.0,
+        "date": "2026-04-04",
+        "photo": "https://drive.google.com/thumbnail?id=1wu_21aRGXTsVD442UhaK9X2iDsu4bDuP&sz=w800",
+        "memo": "滝"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.15517469677044,
+          35.858665095813784,
           0.0
         ]
       }
