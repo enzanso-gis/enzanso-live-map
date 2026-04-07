@@ -53,6 +53,69 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
 
     const map = L.map('map', { maxZoom: 22, zoomControl: false }).setView([startLat, startLng], startZoom);
     L.control.zoom({ position: 'topright' }).addTo(map);
+
+    // ==========================================
+    // ★ 現在地（GPS）ジャンプ機能の追加
+    // ==========================================
+    let userLocationMarker = null;
+    let userLocationCircle = null;
+
+    function locateUser() {
+        // 高精度で現在地を取得開始
+        map.locate({ setView: true, maxZoom: 18, enableHighAccuracy: true });
+    }
+
+    // 取得成功時
+    map.on('locationfound', function(e) {
+        const radius = e.accuracy / 2;
+
+        if (userLocationMarker) map.removeLayer(userLocationMarker);
+        if (userLocationCircle) map.removeLayer(userLocationCircle);
+
+        // 誤差範囲を示す薄い青い円
+        userLocationCircle = L.circle(e.latlng, radius, {
+            color: '#007aff',
+            fillColor: '#007aff',
+            fillOpacity: 0.1,
+            weight: 1
+        }).addTo(map);
+
+        // 現在地を示すスマホ標準風の青い丸
+        userLocationMarker = L.circleMarker(e.latlng, {
+            radius: 7,
+            fillColor: "#007aff",
+            color: "#ffffff",
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 1
+        }).addTo(map).bindPopup("<b>現在地</b>");
+    });
+
+    // 取得失敗時
+    map.on('locationerror', function(e) {
+        alert("現在地を取得できませんでした。\n端末のGPSがオンになっているか、ブラウザの位置情報アクセスが許可されているか確認してください。");
+    });
+
+    // Leafletのズームボタンの下に現在地ボタンを追加する
+    const LocateControl = L.Control.extend({
+        options: { position: 'topright' },
+        onAdd: function (map) {
+            const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+            container.innerHTML = '<a href="#" title="現在地へ移動" style="font-size: 18px; text-decoration: none; display: flex; align-items: center; justify-content: center;">🎯</a>';
+            
+            L.DomEvent.disableClickPropagation(container); // マップ誤クリックを防止
+            
+            container.onclick = function(e) {
+                e.preventDefault();
+                locateUser();
+            }
+            return container;
+        }
+    });
+    map.addControl(new LocateControl());
+    // ==========================================
+
+
     L.tileLayer('https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', { 
         maxNativeZoom: 18, 
         maxZoom: 22,
@@ -670,9 +733,6 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         document.getElementById("modalImage").style.backgroundImage = "none";
     }
 
-    // ==========================================
-    // ★ オフライン管理用の追加機能（警告画面なし・自動バージョン対応）
-    // ==========================================
     function openOfflineManager() {
         document.getElementById('offlineModal').style.display = 'block';
         checkCacheStatus();
@@ -720,7 +780,6 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         const btn = document.getElementById('btn-clear-cache');
         const originalText = btn.innerHTML;
         
-        // ボタンを押している感のあるアニメーション（ポップアップ回避）
         btn.innerHTML = '⏳ 削除中...';
         btn.disabled = true;
         
@@ -734,11 +793,9 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
             
             await checkCacheStatus();
             
-            // 削除完了をボタンの色と文字で伝える
             btn.innerHTML = '✅ 削除完了しました';
             btn.style.backgroundColor = '#38a169'; 
             
-            // 2.5秒後に元のボタンに戻す
             setTimeout(() => {
                 btn.innerHTML = originalText;
                 btn.style.backgroundColor = '#e74c3c';
