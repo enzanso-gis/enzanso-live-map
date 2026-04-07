@@ -156,12 +156,26 @@
 <script src="main.js"></script>
 
 <script>
+    // スマホかどうかの判定（ユーザーエージェント、または画面幅600px以下）
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 600;
+
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(registration => console.log('オフライン機能待機中'))
-                .catch(error => console.log('オフライン機能の準備に失敗:', error));
-        });
+        if (isMobile) {
+            // 【スマホの場合】オフライン機能を登録
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => console.log('スマホ用：オフライン機能待機中'))
+                    .catch(error => console.log('オフライン機能の準備に失敗:', error));
+            });
+        } else {
+            // 【PCの場合】オフライン機能を一切動かさず、過去の登録があれば解除する
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let registration of registrations) {
+                    registration.unregister();
+                    console.log('PC用：オフライン機能を無効化しました');
+                }
+            });
+        }
     }
 </script>
 

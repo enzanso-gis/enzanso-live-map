@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mountain-live-map-v1';
+const CACHE_NAME = 'mountain-live-map-v3';
 
 // アプリを動かすために必ず保存するファイル群
 const STATIC_ASSETS = [
@@ -16,49 +16,58 @@ const STATIC_ASSETS = [
 ];
 
 self.addEventListener('install', event => {
+    self.skipWaiting(); // すぐに新しいバージョンをインストール
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
     );
-    self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
+    self.clients.claim(); // すぐにコントロールを開始
     event.waitUntil(
         caches.keys().then(keys => Promise.all(
             keys.map(key => {
+                // バージョンが変わったら古いキャッシュ(v1など)は完全に削除する
                 if (key !== CACHE_NAME) {
                     return caches.delete(key);
                 }
             })
         ))
     );
-    self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
+    // GETリクエスト（データ取得）以外は無視してそのまま通信させる
+    if (event.request.method !== 'GET') return;
+
     const requestUrl = event.request.url;
 
     event.respondWith(
-        caches.match(event.request).then(cachedResponse => {
+        // ★ ignoreSearch: true を追加。これにより ?ID=000 等のパラメータを無視して安全に読み込む
+        caches.match(event.request, { ignoreSearch: true }).then(cachedResponse => {
             if (cachedResponse) {
                 // GeoJSON（調査データ）は、裏でこっそり最新データを取得して次回のために更新する
                 if (requestUrl.includes('.geojson')) {
                     fetch(event.request).then(networkResponse => {
-                        caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
+                        if (networkResponse.ok) {
+                            caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
+                        }
                     }).catch(() => {}); 
                 }
                 return cachedResponse;
             }
             
+            // キャッシュにない場合はネットワークへ取りに行く
             return fetch(event.request).then(networkResponse => {
                 // はじめて取得した地図画像(国土地理院)やデータは自動的にキャッシュへ保存
-                if (requestUrl.includes('cyberjapandata.gsi.go.jp') || requestUrl.includes('.geojson')) {
+                if (networkResponse.ok && (requestUrl.includes('cyberjapandata.gsi.go.jp') || requestUrl.includes('.geojson'))) {
                     const responseClone = networkResponse.clone();
                     caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
                 }
                 return networkResponse;
             }).catch(() => {
-                // 完全にオフラインの場合は何もしない（保存済みのキャッシュから表示される）
+                // 完全にオフラインで、かつキャッシュにもない場合の安全なエラー回避
+                return new Response('オフラインのため表示できません', { status: 503, statusText: 'Service Unavailable' });
             });
         })
     );
