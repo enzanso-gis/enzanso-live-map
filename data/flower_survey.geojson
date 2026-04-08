@@ -105,6 +105,26 @@
           0.0
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{dcc350ef-0d94-4c68-8679-19488e910272}",
+        "name": "ラフレシア",
+        "status": "咲き始め",
+        "radius_m": 40.0,
+        "date": "2026-04-01",
+        "photo": "https://drive.google.com/thumbnail?id=1dlHFRjCbk6QRnGNgGNgSRf1ugEwXTPFK&sz=w800",
+        "memo": "テスト"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.17222271115935,
+          35.86408851835823,
+          0.0
+        ]
+      }
     }
   ]
 }
