@@ -176,13 +176,22 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         { url: 'data/animal_survey.geojson', type: 'animal' } 
     ];
 
+    const EXCLUDE_KEYWORDS = ['ラン', 'アツモリソウ', 'ハクサンチドリ', 'クマ', '熊', 'スズメバチ', 'イヌワシ', 'クマタカ', '巣'];
     Promise.all(dataSources.map(source => 
         fetch(source.url).then(res => res.json()).then(data => {
             data.features.forEach(f => f.properties.surveyType = source.type);
             return data.features;
         }).catch(err => [])
     )).then(results => {
-        allFeatures = results.flat(); 
+        const rawFeatures = results.flat(); 
+        
+        // ★除外キーワードを含むデータをフィルタリングして弾く
+        allFeatures = rawFeatures.filter(f => {
+            const name = (getProp(f.properties, 'name') || getProp(f.properties, '名前') || '').toString();
+            // 除外キーワードが名前に含まれていれば false (配列から除外)
+            return !EXCLUDE_KEYWORDS.some(kw => name.includes(kw));
+        });
+
         updateUIAndFilters(); 
     });
 
@@ -667,7 +676,13 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
 
                     const memoStr = getProp(props, 'memo') || getProp(props, 'メモ');
                     if(memoStr) popupContent += '<br><b>📝 メモ:</b><br><span style="color:#555;">' + memoStr + '</span>';
-                } 
+
+                    // ★コマクサ専用の注意喚起を追加
+                    if (nameStr.includes('コマクサ')) {
+                        popupContent += '<div style="margin-top:10px; padding:6px; background:#fff3cd; border:1px solid #ffeeba; border-radius:4px; color:#856404; font-size:11px; font-weight:bold; line-height:1.4;">※コマクサ保護のため、撮影は必ず登山道やロープの内側からお願いします。</div>';
+                    }
+
+                }
                 else {
                     const carrierStr = getProp(props, 'carrier') || '不明';
                     const sigStr = getProp(props, 'signallevel') || '-';
@@ -741,6 +756,28 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         document.getElementById('offlineModal').style.display = 'none';
     }
 
+    function openInfoModal() {
+        // モーダルを開く際、現在の保存状態（チェックの有無）を反映させておく
+        const isHidden = localStorage.getItem('hideInfoModal') === 'true';
+        document.getElementById('chk-hide-modal').checked = isHidden;
+        document.getElementById('infoModal').style.display = 'block';
+    }
+
+    function closeInfoModal() {
+        // 閉じるボタン（または×ボタン）が押された時、チェックボックスの状態を確認
+        const isChecked = document.getElementById('chk-hide-modal').checked;
+        
+        if (isChecked) {
+            // チェックされていれば、ブラウザに「次回から隠す(true)」と記録
+            localStorage.setItem('hideInfoModal', 'true');
+        } else {
+            // チェックが外れていれば、記録を削除（次回も表示する）
+            localStorage.removeItem('hideInfoModal');
+        }
+        
+        document.getElementById('infoModal').style.display = 'none';
+    }
+
     async function checkCacheStatus() {
         const statusDiv = document.getElementById('offline-status');
         if ('caches' in window) {
@@ -802,3 +839,10 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
             }, 2500);
         }
     }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        // localStorageをチェックし、「表示しない」設定になっていなければ自動で開く
+        if (localStorage.getItem('hideInfoModal') !== 'true') {
+            openInfoModal();
+        }
+    });

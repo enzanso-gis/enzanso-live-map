@@ -25,6 +25,7 @@
 <body oncontextmenu="return false;" ondragstart="return false;">
 
 <div id="mobile-controls-wrapper">
+    <button id="btn-info" class="mobile-btn" onclick="openInfoModal()">ℹ️ 案内</button>
     <button id="btn-menu" class="mobile-btn" onclick="toggleMenu()">⚙️ 条件</button>
     <button id="btn-download" class="mobile-btn" onclick="openOfflineManager()">💾 管理</button>
     <button id="btn-legend" class="mobile-btn" onclick="toggleLegend()">📖 凡例</button>
@@ -114,7 +115,7 @@
         <div class="control-group" id="filter-nature-date-group">
             <label>📅 日付で絞り込み</label>
             <input type="date" id="filter-date" onchange="applyFilters()" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
-            <button onclick="document.getElementById('filter-date').value=''; applyFilters();" style="margin-top: 8px; width: 100%; padding: 6px; background-color: #f1f1f1; border: 1px solid #ccc; border-radius: 4px; cursor: pointer;">日付をクリア</button>
+            <button onclick="document.getElementById('filter-date').value=''; applyFilters();" style="margin-top: 8px; width: 100%; padding: 6px; background-color: #f1f1f1; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; color:#333;">日付をクリア</button>
         </div>
     </div>
 
@@ -153,6 +154,33 @@
         <button id="btn-clear-cache" onclick="clearOfflineData()" style="width: 100%; padding: 10px; background-color: #e74c3c; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
             🗑️ 端末内の保存データを一括削除
         </button>
+    </div>
+</div>
+
+<div id="infoModal" style="display: none; position: fixed; z-index: 3500; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6);">
+    <div style="background-color: #fff; margin: 10vh auto; padding: 20px; border-radius: 8px; width: 90%; max-width: 450px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        
+        <h3 style="margin-top:0; border-bottom: 2px solid #2c3e50; padding-bottom: 5px; color: #333;">ℹ️ このマップについて（免責事項）</h3>
+        
+        <div style="font-size: 0.85em; color: #444; line-height: 1.6; max-height: 50vh; overflow-y: auto; padding-right: 5px;">
+            <p>本マップは、一個人（制作者）が趣味・研究目的で独自にデータ収集・作成を行い、無償で公開している<b>非公式の個人プロジェクト</b>です。リンク元の山小屋や企業、各種団体が公式に提供・運用するサービスではありません。</p>
+            
+            <ul style="padding-left: 1.5em; margin-bottom: 0;">
+                <li style="margin-bottom:8px;"><b>情報の正確性について:</b> 本マップに掲載されている電波強度、動植物の観察位置等のデータは、調査時点の目安です。山岳地帯では状況が大きく変動するため、正確性や最新性を保証するものではありません。</li>
+                <li style="margin-bottom:8px;"><b>利用者の自己責任:</b> 本マップの利用によって生じたトラブルや損害（遭難、機器の故障等）について、制作者およびリンク元の施設・企業は一切の責任を負いかねます。必ず公式の登山地図や最新の気象情報を確認し、自己責任で行動してください。</li>
+                <li><b>自然環境の保護:</b> 掲載ポイントは登山道上から確認できた位置です。観察・撮影のために登山道を外れたり、植物を傷つける行為は厳禁です。国立公園のルールを遵守してください。</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; text-align: center;">
+            <label style="font-size: 0.9em; color: #333; display: block; margin-bottom: 12px; cursor: pointer;">
+                <input type="checkbox" id="chk-hide-modal" style="margin-right: 5px; transform: scale(1.2);">
+                次回から表示しない
+            </label>
+            <button onclick="closeInfoModal()" style="background-color: #38a169; color: white; border: none; padding: 10px 25px; border-radius: 4px; font-weight: bold; font-size: 1em; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                承諾してマップを見る
+            </button>
+        </div>
     </div>
 </div>
 
