@@ -58,6 +58,23 @@
           35.856377721896365
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "ミツバチ",
+        "date": "2026-04-01",
+        "weather": "曇り",
+        "memo": null,
+        "photo": "https://drive.google.com/thumbnail?id=1tWP6yHayBj1NP0Qvi92EgUqeEuS_UC8d&sz=w800"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.16790216159288,
+          35.8663789301766
+        ]
+      }
     }
   ]
 }

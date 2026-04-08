@@ -85,6 +85,26 @@
           0.0
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{b11a3161-7580-45c5-ae5e-4a0dec1dd805}",
+        "name": "コマクサ",
+        "status": "つぼみ",
+        "radius_m": 30.0,
+        "date": "2026-04-01",
+        "photo": "https://drive.google.com/thumbnail?id=17IpzuT-y_J1WaHgevwCwZelIL6YWfme_&sz=w800",
+        "memo": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.16907339490908,
+          35.8624227643085,
+          0.0
+        ]
+      }
     }
   ]
 }
