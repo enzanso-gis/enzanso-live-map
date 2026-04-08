@@ -107,6 +107,26 @@
           0.0
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{521102e8-fa77-49f5-b853-bdc9b2b1e55f}",
+        "name": "クロユリ",
+        "status": "青葉",
+        "radius_m": 50.0,
+        "date": "2026-04-01",
+        "photo": "https://drive.google.com/thumbnail?id=1y1wxDWJx4F8E_jNd3qkXLA_wY7yD19Q5&sz=w800",
+        "memo": "テスト"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.1646254632977,
+          35.86289799024747,
+          0.0
+        ]
+      }
     }
   ]
 }
