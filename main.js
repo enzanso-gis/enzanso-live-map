@@ -55,6 +55,65 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
     L.control.zoom({ position: 'topright' }).addTo(map);
 
     // ==========================================
+    // ★ 標高取得用API（国土地理院）
+    // ==========================================
+    async function getElevationFromGSI(lat, lng) {
+        try {
+            // 3秒でタイムアウト（通信環境が悪い場合は諦める）
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            const res = await fetch(`https://cyberjapandata2.gsi.go.jp/general/dem/scripts/getelevation.php?lon=${lng}&lat=${lat}&outtype=JSON`, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            const data = await res.json();
+            if (data.elevation !== undefined && typeof data.elevation === 'number') {
+                return Math.round(data.elevation) + " m";
+            }
+        } catch (e) {
+            return null;
+        }
+        return null;
+    }
+
+    // ==========================================
+    // ★ 地図タップで「標高と座標」を表示する新機能
+    // ==========================================
+    let tapPopup = L.popup();
+
+    map.on('click', async function(e) {
+        const lat = e.latlng.lat.toFixed(5);
+        const lng = e.latlng.lng.toFixed(5);
+        
+        // 取得するまでローディング表示
+        tapPopup
+            .setLatLng(e.latlng)
+            .setContent(`<div style="text-align:center; padding:8px; color:#555;">📍 地点情報を取得中...</div>`)
+            .openOn(map);
+
+        let alt = await getElevationFromGSI(e.latlng.lat, e.latlng.lng);
+        if (!alt) alt = "取得不可 (オフライン等)";
+
+        const copyText = `【指定地点】\n緯度: ${lat}\n経度: ${lng}\n標高: ${alt}`;
+
+        const content = `
+            <div style="font-size:13px; min-width: 180px;">
+                <div style="color:#2c3e50; font-weight:bold; font-size:14px; border-bottom:2px solid #2c3e50; padding-bottom:4px; margin-bottom:8px; text-align:center;">
+                    📍 指定地点の情報
+                </div>
+                <div style="line-height: 1.6; color: #333; margin-bottom: 10px;">
+                    <b>緯度:</b> ${lat}<br>
+                    <b>経度:</b> ${lng}<br>
+                    <b>標高:</b> ${alt}
+                </div>
+                <button onclick="navigator.clipboard.writeText('${copyText.replace(/\n/g, '\\n')}').then(()=>alert('座標をコピーしました。'))" 
+                        style="width:100%; padding:6px; background-color:#2c3e50; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">
+                    📋 座標をコピー
+                </button>
+            </div>
+        `;
+        tapPopup.setContent(content);
+    });
+
+    // ==========================================
     // ★ 高精度＆エコな現在地（GPS）機能
     // ==========================================
     let userLocationMarker = null;
@@ -66,12 +125,10 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
             return;
         }
 
-        // --- 1. カウントダウン（ロード画面）の動的作成 ---
         let loadingDiv = document.getElementById('gps-loading-overlay');
         if (!loadingDiv) {
             loadingDiv = document.createElement('div');
             loadingDiv.id = 'gps-loading-overlay';
-            // CSSを使わずにJSで直接スタイルを当てる
             loadingDiv.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:#fff; padding:12px 20px; border-radius:30px; z-index:4000; font-size:14px; font-weight:bold; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.3); pointer-events:none; transition: opacity 0.3s;';
             document.body.appendChild(loadingDiv);
         }
@@ -92,7 +149,6 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
             if (loadingDiv) loadingDiv.style.display = 'none';
         };
 
-        // --- 2. GPS取得ロジック（watchPositionでフィルタリング） ---
         const options = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
         let watchId = null;
         let gpsTimeoutId = null;
@@ -101,11 +157,9 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         watchId = navigator.geolocation.watchPosition(
             (position) => {
                 const accuracy = position.coords.accuracy;
-                // これまでで一番誤差が少ない（精度が良い）データを保持
                 if (!bestPosition || accuracy < bestPosition.coords.accuracy) {
                     bestPosition = position;
                 }
-                // 誤差20m以内になれば「十分に高精度」と判断して即終了（電池節約）
                 if (accuracy <= 20) {
                     navigator.geolocation.clearWatch(watchId);
                     clearTimeout(gpsTimeoutId);
@@ -114,7 +168,6 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
                 }
             },
             (error) => {
-                // ユーザーが「許可しない」を押した等、致命的なエラーの場合は即中断
                 if (error.code === 1) { 
                     navigator.geolocation.clearWatch(watchId);
                     clearTimeout(gpsTimeoutId);
@@ -125,7 +178,6 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
             options
         );
 
-        // 15秒経過で強制的に終了し、その時点で一番マシなデータを採用する
         gpsTimeoutId = setTimeout(() => {
             navigator.geolocation.clearWatch(watchId);
             stopLoadingUI();
@@ -137,14 +189,13 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         }, 15000);
     }
 
-    // --- 3. 取得した最高精度の座標を地図に反映する処理 ---
-    function processLocationFound(position) {
+    // --- 取得した最高精度の座標を地図に反映する処理（asyncに変更） ---
+    async function processLocationFound(position) {
         const latlng = { lat: position.coords.latitude, lng: position.coords.longitude };
         const accuracy = position.coords.accuracy;
-        const altitude = position.coords.altitude;
+        const rawAltitude = position.coords.altitude;
         const timestamp = position.timestamp;
 
-        // 地図を現在地に移動
         map.setView(latlng, 18);
 
         const radius = accuracy / 2;
@@ -152,7 +203,6 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         if (userLocationMarker) map.removeLayer(userLocationMarker);
         if (userLocationCircle) map.removeLayer(userLocationCircle);
 
-        // 誤差範囲を示す薄い青い円
         userLocationCircle = L.circle(latlng, radius, {
             color: '#007aff',
             fillColor: '#007aff',
@@ -160,12 +210,19 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
             weight: 1
         }).addTo(map);
 
-        // ▼情報を抽出▼
         const lat = latlng.lat.toFixed(5);
         const lng = latlng.lng.toFixed(5);
         const acc = Math.round(accuracy);
         
-        const alt = (altitude != null && !isNaN(altitude)) ? Math.round(altitude) + " m" : "取得不可";
+        // ★ 標高を国土地理院APIから取得。ダメならGPS生データ（ズレあり警告付き）を表示。
+        let alt = await getElevationFromGSI(latlng.lat, latlng.lng);
+        if (!alt) {
+            if (rawAltitude != null && !isNaN(rawAltitude)) {
+                alt = Math.round(rawAltitude) + " m <span style='font-size:10px; color:#e74c3c;'>(※GPS生データのため約40mの誤差あり)</span>";
+            } else {
+                alt = "取得不可 (オフライン等)";
+            }
+        }
         
         const now = new Date(timestamp || Date.now());
         const yyyy = now.getFullYear();
@@ -176,9 +233,10 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         const ss = String(now.getSeconds()).padStart(2, '0');
         const timeStr = `${yyyy}/${mm}/${dd} ${hh}:${min}:${ss}`;
         
-        const copyText = `【現在地】\n時刻: ${timeStr}\n緯度: ${lat}\n経度: ${lng}\n標高: ${alt}\nGPS誤差: 約${acc}m`;
+        // コピーテキストからはHTMLタグを排除
+        const cleanAlt = alt.replace(/<[^>]*>?/gm, '');
+        const copyText = `【現在地】\n時刻: ${timeStr}\n緯度: ${lat}\n経度: ${lng}\n標高: ${cleanAlt}\nGPS誤差: 約${acc}m`;
 
-        // ▼ 変更点: 発信ボタンを削除し、安全な情報提供に徹したデザイン ▼
         const popupHTML = `
             <div style="font-size:14px; min-width: 210px;">
                 <div style="color:#007aff; font-weight:bold; font-size:15px; border-bottom:2px solid #007aff; padding-bottom:4px; margin-bottom:8px; text-align:center;">
@@ -224,7 +282,6 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         }, 3000);
     }
 
-    // --- 4. 画面右上にボタンを配置 ---
     const LocateControl = L.Control.extend({
         options: { position: 'topright' },
         onAdd: function (map) {
@@ -313,7 +370,6 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
     )).then(results => {
         const rawFeatures = results.flat(); 
         
-        // ★除外キーワードを含むデータをフィルタリングして弾く
         allFeatures = rawFeatures.filter(f => {
             const name = (getProp(f.properties, 'name') || getProp(f.properties, '名前') || '').toString();
             return !EXCLUDE_KEYWORDS.some(kw => name.includes(kw));
