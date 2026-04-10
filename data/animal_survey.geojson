@@ -75,23 +75,6 @@
           35.8663789301766
         ]
       }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "テスト動物",
-        "date": "2026-04-10",
-        "weather": "晴れ",
-        "memo": null,
-        "photo": "DCIM/animal-survey_20260410115439125.jpg"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.17201328856086,
-          35.848479159922384
-        ]
-      }
     }
   ]
 }

@@ -125,26 +125,6 @@
           0.0
         ]
       }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "site_id": "{faa5c801-2fc1-4bc4-b50f-fa496d113e40}",
-        "name": "テスト花",
-        "status": "咲き始め",
-        "radius_m": 100.0,
-        "date": "2026-04-10",
-        "photo": "files/20260410025307176_PXL_20260402_230801207.jpg",
-        "memo": null
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.17133824442453,
-          35.84857559479899,
-          0.0
-        ]
-      }
     }
   ]
 }

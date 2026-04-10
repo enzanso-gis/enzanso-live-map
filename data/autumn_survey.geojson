@@ -127,26 +127,6 @@
           0.0
         ]
       }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "site_id": "{37eb0ce9-88e1-459c-a14d-52fb45b1ec05}",
-        "name": "テスト木",
-        "status": "青葉",
-        "radius_m": 100.0,
-        "date": "2026-04-10",
-        "photo": "files/autumn-survey_20260410115404617_PXL_20260402_110248709.jpg",
-        "memo": null
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.1727606588546,
-          35.84847915992238,
-          0.0
-        ]
-      }
     }
   ]
 }
