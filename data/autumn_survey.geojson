@@ -127,6 +127,46 @@
           0.0
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{bc3fbea8-5f2e-4b6a-961e-d5c22c9ccdaf}",
+        "name": "テスト木",
+        "status": "色づき始め",
+        "radius_m": 100.0,
+        "date": "2026-04-10",
+        "photo": "files/autumn-survey_20260410122515120_PXL_20260403_082249689.jpg",
+        "memo": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.17297251191442,
+          35.848441964310034,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{4fdf44ef-0ad6-446b-af46-22addd545425}",
+        "name": "テスト木",
+        "status": "色づき始め",
+        "radius_m": 100.0,
+        "date": "2026-04-10",
+        "photo": "https://drive.google.com/thumbnail?id=1Wus4tl4olqrmTjvAThLpSzGhriba6NGP&sz=w800",
+        "memo": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.17147995840878,
+          35.848536729611986,
+          0.0
+        ]
+      }
     }
   ]
 }

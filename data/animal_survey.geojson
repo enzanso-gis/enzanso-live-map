@@ -75,6 +75,23 @@
           35.8663789301766
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "テスト動物",
+        "date": "2026-04-10",
+        "weather": "曇り",
+        "memo": null,
+        "photo": "https://drive.google.com/thumbnail?id=1XR3A5WV9XL_mxunTHEtQ1q865ZBgwxin&sz=w800"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.17223808082434,
+          35.84851303828649
+        ]
+      }
     }
   ]
 }

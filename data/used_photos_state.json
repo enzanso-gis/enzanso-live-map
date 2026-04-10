@@ -1,12 +1,18 @@
 {
   "valid_ids": [
+    "1XR3A5WV9XL_mxunTHEtQ1q865ZBgwxin",
     "16pm3a_N0DdFKhQ_M6CMlf1htZ-gwWTyG",
-    "17IpzuT-y_J1WaHgevwCwZelIL6YWfme_",
-    "1jRLnteUSXoupshbkwL10Xm5PxdhHXGqW"
+    "1jRLnteUSXoupshbkwL10Xm5PxdhHXGqW",
+    "1uUtB52Ta5GFgHo88k41EvSNMOCywLywM",
+    "1Wus4tl4olqrmTjvAThLpSzGhriba6NGP",
+    "17IpzuT-y_J1WaHgevwCwZelIL6YWfme_"
   ],
   "mapping": {
     "20260328032108420_20260131_104319.jpg": "1jRLnteUSXoupshbkwL10Xm5PxdhHXGqW",
     "autumn-survey_20260328130031931_1743825623722.jpg": "16pm3a_N0DdFKhQ_M6CMlf1htZ-gwWTyG",
-    "20260408081715844_PXL_20260330_051658843.jpg": "17IpzuT-y_J1WaHgevwCwZelIL6YWfme_"
+    "20260408081715844_PXL_20260330_051658843.jpg": "17IpzuT-y_J1WaHgevwCwZelIL6YWfme_",
+    "animal-survey_20260410122442565.jpg": "1XR3A5WV9XL_mxunTHEtQ1q865ZBgwxin",
+    "autumn-survey_20260410122606267_PXL_20260403_041202344.jpg": "1Wus4tl4olqrmTjvAThLpSzGhriba6NGP",
+    "20260410032629209_PXL_20260403_054306284.jpg": "1uUtB52Ta5GFgHo88k41EvSNMOCywLywM"
   }
 }
