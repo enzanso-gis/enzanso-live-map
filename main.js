@@ -80,15 +80,57 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
             weight: 1
         }).addTo(map);
 
-        // 現在地を示すスマホ標準風の青い丸
-        userLocationMarker = L.circleMarker(e.latlng, {
-            radius: 7,
-            fillColor: "#007aff",
-            color: "#ffffff",
-            weight: 2,
-            opacity: 1,
-            fillOpacity: 1
-        }).addTo(map).bindPopup("<b>現在地</b>");
+        // ▼緊急時用のポップアップ内容を生成▼
+        const lat = e.latlng.lat.toFixed(5);
+        const lng = e.latlng.lng.toFixed(5);
+        const acc = Math.round(e.accuracy);
+        
+        const copyText = `【緊急・現在地】\n緯度: ${lat}\n経度: ${lng}\n(GPS誤差: 約${acc}m)`;
+
+        const popupHTML = `
+            <div style="font-size:14px; min-width: 190px;">
+                <div style="color:#e74c3c; font-weight:bold; font-size:15px; border-bottom:2px solid #e74c3c; padding-bottom:4px; margin-bottom:8px; text-align:center;">
+                    🚨 現在地情報
+                </div>
+                <div style="line-height: 1.6; color: #333; margin-bottom: 10px;">
+                    <b>緯度:</b> ${lat}<br>
+                    <b>経度:</b> ${lng}<br>
+                    <span style="font-size:11px; color:#666;">※GPS誤差: 約 ${acc} m</span>
+                </div>
+                <button onclick="navigator.clipboard.writeText('${copyText.replace(/\n/g, '\\n')}').then(()=>alert('座標をコピーしました！\\n警察(110番)・消防(119番)・山小屋などの連絡にお使いください。'))" 
+                        style="width:100%; padding:8px; background-color:#e74c3c; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+                    📋 座標をコピーする
+                </button>
+                
+                <div style="font-size:11px; color:#555; margin-top:10px; padding-top:8px; border-top:1px dashed #ccc; line-height:1.4;">
+                    <b style="color:#38a169;">🔋 バッテリー保護設計</b><br>
+                    電池消耗を防ぐため、位置の自動追従は行いません。最新の座標を取得するには、再度右上の「🎯」ボタンを押してください。
+                </div>
+            </div>
+        `;
+
+        // ▼変更点1：二重丸（真ん中塗りつぶし）のカスタムアイコンを作成▼
+        const bullseyeIcon = L.divIcon({
+            className: 'custom-gps-icon',
+            // 中心が青、その周りが白、一番外側が青のリングになるCSSデザイン
+            html: '<div style="width: 12px; height: 12px; background-color: #007aff; border: 3px solid white; box-shadow: 0 0 0 2px #007aff; border-radius: 50%; margin: 2px;"></div>',
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
+        });
+
+        // ▼変更点2：自動で大きなポップアップを開かず、小さな吹き出しで控えめに知らせる▼
+        userLocationMarker = L.marker(e.latlng, { icon: bullseyeIcon })
+            .addTo(map)
+            .bindPopup(popupHTML) // タップした時は大きな画面が出るようにセットしておく
+            .bindTooltip("タップして座標を表示", { direction: 'top', offset: [0, -10], permanent: false })
+            .openTooltip(); // 最初だけ小さな吹き出しを出す
+
+        // 3秒後に小さな吹き出しを自動で閉じる（頭の片隅に残す程度の表示）
+        setTimeout(() => {
+            if (userLocationMarker) {
+                userLocationMarker.closeTooltip();
+            }
+        }, 3000);
     });
 
     // 取得失敗時
