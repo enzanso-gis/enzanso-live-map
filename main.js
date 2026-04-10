@@ -55,97 +55,183 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
     L.control.zoom({ position: 'topright' }).addTo(map);
 
     // ==========================================
-    // ★ 現在地（GPS）ジャンプ機能の追加
+    // ★ 高精度＆エコな現在地（GPS）機能
     // ==========================================
     let userLocationMarker = null;
     let userLocationCircle = null;
 
     function locateUser() {
-        // 高精度で現在地を取得開始
-        map.locate({ setView: true, maxZoom: 18, enableHighAccuracy: true });
+        if (!navigator.geolocation) {
+            alert("お使いの端末・ブラウザは位置情報の取得に対応していません。");
+            return;
+        }
+
+        // --- 1. カウントダウン（ロード画面）の動的作成 ---
+        let loadingDiv = document.getElementById('gps-loading-overlay');
+        if (!loadingDiv) {
+            loadingDiv = document.createElement('div');
+            loadingDiv.id = 'gps-loading-overlay';
+            // CSSを使わずにJSで直接スタイルを当てる
+            loadingDiv.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:#fff; padding:12px 20px; border-radius:30px; z-index:4000; font-size:14px; font-weight:bold; text-align:center; box-shadow:0 4px 10px rgba(0,0,0,0.3); pointer-events:none; transition: opacity 0.3s;';
+            document.body.appendChild(loadingDiv);
+        }
+        loadingDiv.style.display = 'block';
+
+        let timeLeft = 15;
+        loadingDiv.innerHTML = `⏳ 高精度な座標を計算中...<br><span style="font-size:12px; font-weight:normal; color:#ddd;">残り ${timeLeft} 秒 (精度が安定次第完了します)</span>`;
+        
+        const timerInterval = setInterval(() => {
+            timeLeft--;
+            if (timeLeft > 0) {
+                loadingDiv.innerHTML = `⏳ 高精度な座標を計算中...<br><span style="font-size:12px; font-weight:normal; color:#ddd;">残り ${timeLeft} 秒 (精度が安定次第完了します)</span>`;
+            }
+        }, 1000);
+
+        const stopLoadingUI = () => {
+            clearInterval(timerInterval);
+            if (loadingDiv) loadingDiv.style.display = 'none';
+        };
+
+        // --- 2. GPS取得ロジック（watchPositionでフィルタリング） ---
+        const options = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
+        let watchId = null;
+        let gpsTimeoutId = null;
+        let bestPosition = null;
+
+        watchId = navigator.geolocation.watchPosition(
+            (position) => {
+                const accuracy = position.coords.accuracy;
+                // これまでで一番誤差が少ない（精度が良い）データを保持
+                if (!bestPosition || accuracy < bestPosition.coords.accuracy) {
+                    bestPosition = position;
+                }
+                // 誤差20m以内になれば「十分に高精度」と判断して即終了（電池節約）
+                if (accuracy <= 20) {
+                    navigator.geolocation.clearWatch(watchId);
+                    clearTimeout(gpsTimeoutId);
+                    stopLoadingUI();
+                    processLocationFound(bestPosition);
+                }
+            },
+            (error) => {
+                // ユーザーが「許可しない」を押した等、致命的なエラーの場合は即中断
+                if (error.code === 1) { 
+                    navigator.geolocation.clearWatch(watchId);
+                    clearTimeout(gpsTimeoutId);
+                    stopLoadingUI();
+                    alert("位置情報の利用が許可されていません。\n端末やブラウザの設定で位置情報をONにしてください。");
+                }
+            },
+            options
+        );
+
+        // 15秒経過で強制的に終了し、その時点で一番マシなデータを採用する
+        gpsTimeoutId = setTimeout(() => {
+            navigator.geolocation.clearWatch(watchId);
+            stopLoadingUI();
+            if (bestPosition) {
+                processLocationFound(bestPosition);
+            } else {
+                alert("現在地を取得できませんでした。\n空が開けた場所で再度お試しください。");
+            }
+        }, 15000);
     }
 
-    // 取得成功時
-    map.on('locationfound', function(e) {
-        const radius = e.accuracy / 2;
+    // --- 3. 取得した最高精度の座標を地図に反映する処理 ---
+    function processLocationFound(position) {
+        const latlng = { lat: position.coords.latitude, lng: position.coords.longitude };
+        const accuracy = position.coords.accuracy;
+        const altitude = position.coords.altitude;
+        const timestamp = position.timestamp;
+
+        // 地図を現在地に移動
+        map.setView(latlng, 18);
+
+        const radius = accuracy / 2;
 
         if (userLocationMarker) map.removeLayer(userLocationMarker);
         if (userLocationCircle) map.removeLayer(userLocationCircle);
 
         // 誤差範囲を示す薄い青い円
-        userLocationCircle = L.circle(e.latlng, radius, {
+        userLocationCircle = L.circle(latlng, radius, {
             color: '#007aff',
             fillColor: '#007aff',
             fillOpacity: 0.1,
             weight: 1
         }).addTo(map);
 
-        // ▼緊急時用のポップアップ内容を生成▼
-        const lat = e.latlng.lat.toFixed(5);
-        const lng = e.latlng.lng.toFixed(5);
-        const acc = Math.round(e.accuracy);
+        // ▼情報を抽出▼
+        const lat = latlng.lat.toFixed(5);
+        const lng = latlng.lng.toFixed(5);
+        const acc = Math.round(accuracy);
         
-        const copyText = `【緊急・現在地】\n緯度: ${lat}\n経度: ${lng}\n(GPS誤差: 約${acc}m)`;
+        const alt = (altitude != null && !isNaN(altitude)) ? Math.round(altitude) + " m" : "取得不可";
+        
+        const now = new Date(timestamp || Date.now());
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const hh = String(now.getHours()).padStart(2, '0');
+        const min = String(now.getMinutes()).padStart(2, '0');
+        const ss = String(now.getSeconds()).padStart(2, '0');
+        const timeStr = `${yyyy}/${mm}/${dd} ${hh}:${min}:${ss}`;
+        
+        const copyText = `【現在地】\n時刻: ${timeStr}\n緯度: ${lat}\n経度: ${lng}\n標高: ${alt}\nGPS誤差: 約${acc}m`;
 
+        // ▼ 変更点: 発信ボタンを削除し、安全な情報提供に徹したデザイン ▼
         const popupHTML = `
-            <div style="font-size:14px; min-width: 190px;">
-                <div style="color:#e74c3c; font-weight:bold; font-size:15px; border-bottom:2px solid #e74c3c; padding-bottom:4px; margin-bottom:8px; text-align:center;">
-                    🚨 現在地情報
+            <div style="font-size:14px; min-width: 210px;">
+                <div style="color:#007aff; font-weight:bold; font-size:15px; border-bottom:2px solid #007aff; padding-bottom:4px; margin-bottom:8px; text-align:center;">
+                    📍 現在地情報
                 </div>
                 <div style="line-height: 1.6; color: #333; margin-bottom: 10px;">
+                    <b>時刻:</b> ${timeStr} 取得<br>
                     <b>緯度:</b> ${lat}<br>
                     <b>経度:</b> ${lng}<br>
+                    <b>標高:</b> ${alt}<br>
                     <span style="font-size:11px; color:#666;">※GPS誤差: 約 ${acc} m</span>
                 </div>
-                <button onclick="navigator.clipboard.writeText('${copyText.replace(/\n/g, '\\n')}').then(()=>alert('座標をコピーしました！\\n警察(110番)・消防(119番)・山小屋などの連絡にお使いください。'))" 
-                        style="width:100%; padding:8px; background-color:#e74c3c; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+                
+                <button onclick="navigator.clipboard.writeText('${copyText.replace(/\n/g, '\\n')}').then(()=>alert('座標をコピーしました。'))" 
+                        style="width:100%; padding:8px; background-color:#007aff; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.2); margin-bottom:12px;">
                     📋 座標をコピーする
                 </button>
-                
-                <div style="font-size:11px; color:#555; margin-top:10px; padding-top:8px; border-top:1px dashed #ccc; line-height:1.4;">
+
+                <div style="font-size:11px; color:#555; padding-top:8px; border-top:1px dashed #ccc; line-height:1.4;">
                     <b style="color:#38a169;">🔋 バッテリー保護設計</b><br>
                     電池消耗を防ぐため、位置の自動追従は行いません。最新の座標を取得するには、再度右上の「🎯」ボタンを押してください。
                 </div>
             </div>
         `;
 
-        // ▼変更点1：二重丸（真ん中塗りつぶし）のカスタムアイコンを作成▼
         const bullseyeIcon = L.divIcon({
             className: 'custom-gps-icon',
-            // 中心が青、その周りが白、一番外側が青のリングになるCSSデザイン
             html: '<div style="width: 12px; height: 12px; background-color: #007aff; border: 3px solid white; box-shadow: 0 0 0 2px #007aff; border-radius: 50%; margin: 2px;"></div>',
             iconSize: [24, 24],
             iconAnchor: [12, 12]
         });
 
-        // ▼変更点2：自動で大きなポップアップを開かず、小さな吹き出しで控えめに知らせる▼
-        userLocationMarker = L.marker(e.latlng, { icon: bullseyeIcon })
+        userLocationMarker = L.marker(latlng, { icon: bullseyeIcon })
             .addTo(map)
-            .bindPopup(popupHTML) // タップした時は大きな画面が出るようにセットしておく
+            .bindPopup(popupHTML)
             .bindTooltip("タップして座標を表示", { direction: 'top', offset: [0, -10], permanent: false })
-            .openTooltip(); // 最初だけ小さな吹き出しを出す
+            .openTooltip();
 
-        // 3秒後に小さな吹き出しを自動で閉じる（頭の片隅に残す程度の表示）
         setTimeout(() => {
             if (userLocationMarker) {
                 userLocationMarker.closeTooltip();
             }
         }, 3000);
-    });
+    }
 
-    // 取得失敗時
-    map.on('locationerror', function(e) {
-        alert("現在地を取得できませんでした。\n端末のGPSがオンになっているか、ブラウザの位置情報アクセスが許可されているか確認してください。");
-    });
-
-    // Leafletのズームボタンの下に現在地ボタンを追加する
+    // --- 4. 画面右上にボタンを配置 ---
     const LocateControl = L.Control.extend({
         options: { position: 'topright' },
         onAdd: function (map) {
             const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
             container.innerHTML = '<a href="#" title="現在地へ移動" style="font-size: 18px; text-decoration: none; display: flex; align-items: center; justify-content: center;">🎯</a>';
             
-            L.DomEvent.disableClickPropagation(container); // マップ誤クリックを防止
+            L.DomEvent.disableClickPropagation(container); 
             
             container.onclick = function(e) {
                 e.preventDefault();
@@ -230,7 +316,6 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
         // ★除外キーワードを含むデータをフィルタリングして弾く
         allFeatures = rawFeatures.filter(f => {
             const name = (getProp(f.properties, 'name') || getProp(f.properties, '名前') || '').toString();
-            // 除外キーワードが名前に含まれていれば false (配列から除外)
             return !EXCLUDE_KEYWORDS.some(kw => name.includes(kw));
         });
 
@@ -719,12 +804,11 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
                     const memoStr = getProp(props, 'memo') || getProp(props, 'メモ');
                     if(memoStr) popupContent += '<br><b>📝 メモ:</b><br><span style="color:#555;">' + memoStr + '</span>';
 
-                    // ★コマクサ専用の注意喚起を追加
                     if (nameStr.includes('コマクサ')) {
                         popupContent += '<div style="margin-top:10px; padding:6px; background:#fff3cd; border:1px solid #ffeeba; border-radius:4px; color:#856404; font-size:11px; font-weight:bold; line-height:1.4;">※コマクサ保護のため、撮影は必ず登山道やロープの内側からお願いします。</div>';
                     }
 
-                }
+                } 
                 else {
                     const carrierStr = getProp(props, 'carrier') || '不明';
                     const sigStr = getProp(props, 'signallevel') || '-';
@@ -799,21 +883,17 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
     }
 
     function openInfoModal() {
-        // モーダルを開く際、現在の保存状態（チェックの有無）を反映させておく
         const isHidden = localStorage.getItem('hideInfoModal') === 'true';
         document.getElementById('chk-hide-modal').checked = isHidden;
         document.getElementById('infoModal').style.display = 'block';
     }
 
     function closeInfoModal() {
-        // 閉じるボタン（または×ボタン）が押された時、チェックボックスの状態を確認
         const isChecked = document.getElementById('chk-hide-modal').checked;
         
         if (isChecked) {
-            // チェックされていれば、ブラウザに「次回から隠す(true)」と記録
             localStorage.setItem('hideInfoModal', 'true');
         } else {
-            // チェックが外れていれば、記録を削除（次回も表示する）
             localStorage.removeItem('hideInfoModal');
         }
         
@@ -883,7 +963,6 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-        // localStorageをチェックし、「表示しない」設定になっていなければ自動で開く
         if (localStorage.getItem('hideInfoModal') !== 'true') {
             openInfoModal();
         }
