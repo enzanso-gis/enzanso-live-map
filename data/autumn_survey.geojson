@@ -16,7 +16,7 @@
         "status": "青葉",
         "radius_m": 500.0,
         "date": "2026-03-16",
-        "photo": "https://drive.google.com/thumbnail?id=1ivOOOBN3LKVikxVt5LRFkBn4gFMMA9hv&sz=w800",
+        "photo": "files/autumn-survey_20260328122815716_20260131_094525.jpg",
         "memo": null
       },
       "geometry": {
@@ -36,7 +36,7 @@
         "status": "青葉",
         "radius_m": 500.0,
         "date": "2026-03-20",
-        "photo": "https://drive.google.com/thumbnail?id=14z-yV_dzHgnsQL0eIAM0qHtwPgnCKREh&sz=w800",
+        "photo": "files/autumn-survey_20260328125609867_20260131_114447.jpg",
         "memo": "てすと"
       },
       "geometry": {
@@ -76,7 +76,7 @@
         "status": "見頃",
         "radius_m": 500.0,
         "date": "2026-03-22",
-        "photo": "https://drive.google.com/thumbnail?id=1LKBA6auhMIDpMP57aumGTux0Yw0FlEjG&sz=w800",
+        "photo": "files/autumn-survey_20260328133639898_PXL_20260321_054224381.jpg",
         "memo": "満開"
       },
       "geometry": {
@@ -96,7 +96,7 @@
         "status": "落葉",
         "radius_m": 500.0,
         "date": "2026-04-04",
-        "photo": "https://drive.google.com/thumbnail?id=1wu_21aRGXTsVD442UhaK9X2iDsu4bDuP&sz=w800",
+        "photo": "files/autumn-survey_20260407225732138_PXL_20260403_081842815.LONG_EXPOSURE-01.COVER.jpg",
         "memo": "滝"
       },
       "geometry": {
@@ -116,7 +116,7 @@
         "status": "青葉",
         "radius_m": 50.0,
         "date": "2026-04-01",
-        "photo": "https://drive.google.com/thumbnail?id=1y1wxDWJx4F8E_jNd3qkXLA_wY7yD19Q5&sz=w800",
+        "photo": "files/autumn-survey_20260408165939976_PXL_20260402_030445683.jpg",
         "memo": "テスト"
       },
       "geometry": {
@@ -124,6 +124,26 @@
         "coordinates": [
           139.1646254632977,
           35.86289799024747,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{37eb0ce9-88e1-459c-a14d-52fb45b1ec05}",
+        "name": "テスト木",
+        "status": "青葉",
+        "radius_m": 100.0,
+        "date": "2026-04-10",
+        "photo": "files/autumn-survey_20260410115404617_PXL_20260402_110248709.jpg",
+        "memo": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.1727606588546,
+          35.84847915992238,
           0.0
         ]
       }

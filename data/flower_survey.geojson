@@ -35,7 +35,7 @@
         "status": "つぼみ",
         "radius_m": 200.0,
         "date": "2026-03-20",
-        "photo": "https://drive.google.com/thumbnail?id=1wIYcCObKKKdT9wqbb5zOqzpQtgUSsu49&sz=w800",
+        "photo": "files/20260328032530032_20260131_115717.jpg",
         "memo": "テスト"
       },
       "geometry": {
@@ -54,7 +54,7 @@
         "status": "見頃",
         "radius_m": 200.0,
         "date": "2026-03-28",
-        "photo": "https://drive.google.com/thumbnail?id=1sVtATtUIOO2zshf1NEy0McRMbpRrLzrl&sz=w800",
+        "photo": "files/20260328040214733_PXL_20260321_062730394.jpg",
         "memo": null
       },
       "geometry": {
@@ -74,7 +74,7 @@
         "status": "散り始め",
         "radius_m": 100.0,
         "date": "2026-04-06",
-        "photo": "https://drive.google.com/thumbnail?id=1uGeqTwZtGtPEBfbfZLIvC2igQj0iAEQ6&sz=w800",
+        "photo": "files/20260407154410123_PXL_20260403_041202344.jpg",
         "memo": "はじめ"
       },
       "geometry": {
@@ -114,7 +114,7 @@
         "status": "咲き始め",
         "radius_m": 40.0,
         "date": "2026-04-01",
-        "photo": "https://drive.google.com/thumbnail?id=1dlHFRjCbk6QRnGNgGNgSRf1ugEwXTPFK&sz=w800",
+        "photo": "files/20260408115146928_PXL_20260330_234013319.jpg",
         "memo": "テスト"
       },
       "geometry": {
@@ -122,6 +122,26 @@
         "coordinates": [
           139.17222271115935,
           35.86408851835823,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{faa5c801-2fc1-4bc4-b50f-fa496d113e40}",
+        "name": "テスト花",
+        "status": "咲き始め",
+        "radius_m": 100.0,
+        "date": "2026-04-10",
+        "photo": "files/20260410025307176_PXL_20260402_230801207.jpg",
+        "memo": null
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.17133824442453,
+          35.84857559479899,
           0.0
         ]
       }

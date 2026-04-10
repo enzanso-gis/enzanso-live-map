@@ -15,7 +15,7 @@
         "date": "2026-03-23",
         "weather": "晴れ",
         "memo": "オス",
-        "photo": "https://drive.google.com/thumbnail?id=15iJBeJW5X0IJWdLO_WuP_QRgeZTPJnAj&sz=w800"
+        "photo": "DCIM/animal-survey_20260328170819990.jpg"
       },
       "geometry": {
         "type": "Point",
@@ -32,7 +32,7 @@
         "date": "2026-03-24",
         "weather": "曇り",
         "memo": "メス",
-        "photo": "https://drive.google.com/thumbnail?id=1Bzw6wWXzWeasskHN1TtVC-Y30lVnE3Nd&sz=w800"
+        "photo": "DCIM/animal-survey_20260328170857187.jpg"
       },
       "geometry": {
         "type": "Point",
@@ -49,7 +49,7 @@
         "date": "2026-03-25",
         "weather": "雨",
         "memo": null,
-        "photo": "https://drive.google.com/thumbnail?id=1U0N3yQ2Rw0ITD920UQVhAWLNASet-OrV&sz=w800"
+        "photo": "DCIM/animal-survey_20260328170939713.jpg"
       },
       "geometry": {
         "type": "Point",
@@ -66,13 +66,30 @@
         "date": "2026-04-01",
         "weather": "曇り",
         "memo": null,
-        "photo": "https://drive.google.com/thumbnail?id=1tWP6yHayBj1NP0Qvi92EgUqeEuS_UC8d&sz=w800"
+        "photo": "DCIM/animal-survey_20260408171605489.jpg"
       },
       "geometry": {
         "type": "Point",
         "coordinates": [
           139.16790216159288,
           35.8663789301766
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "テスト動物",
+        "date": "2026-04-10",
+        "weather": "晴れ",
+        "memo": null,
+        "photo": "DCIM/animal-survey_20260410115439125.jpg"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.17201328856086,
+          35.848479159922384
         ]
       }
     }
