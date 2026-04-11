@@ -24,6 +24,74 @@
           35.84851303828649
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "テスト動物A",
+        "date": "2026-03-30",
+        "weather": "曇り",
+        "memo": "テスト",
+        "photo": "https://drive.google.com/thumbnail?id=13XaW4XBSJQ0v_H6_Kb5H8YcndutN6_hC&sz=w800"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.15921908691848,
+          35.85716703439521
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "テスト動物B",
+        "date": "2026-04-06",
+        "weather": "晴れ",
+        "memo": "テスト",
+        "photo": "https://drive.google.com/thumbnail?id=1ptVVBWndS29qQu-K-IGVBUhiTX2Cs7FN&sz=w800"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.15992848501958,
+          35.856007774083686
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "テスト動物C",
+        "date": "2026-04-11",
+        "weather": "晴れ",
+        "memo": "テスト",
+        "photo": "https://drive.google.com/thumbnail?id=1rGj2X507TLiw9Bz2PIiFtZ6b6LUjiF4n&sz=w800"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.16396010256304,
+          35.859621898285084
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "テスト動物D",
+        "date": "2026-04-15",
+        "weather": "晴れ",
+        "memo": "テスト",
+        "photo": "https://drive.google.com/thumbnail?id=1QarN6jyRiW-Ng8GNpS-OVP357A5rsNkz&sz=w800"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.18060419255187,
+          35.8677160770913
+        ]
+      }
     }
   ]
 }

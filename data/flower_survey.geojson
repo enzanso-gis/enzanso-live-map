@@ -27,6 +27,86 @@
           0.0
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{03b061e3-4926-4139-a156-573cfaea7f4c}",
+        "name": "テスト花A",
+        "status": "つぼみ",
+        "radius_m": 50.0,
+        "date": "2026-03-31",
+        "photo": "https://drive.google.com/thumbnail?id=1R0Y3nYu0eUwvLHdAQIjP_p9Li479OZnt&sz=w800",
+        "memo": "テスト"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.15978311417217,
+          35.8570014291531,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{9943a5c1-2f84-477c-b201-081ed13b2698}",
+        "name": "テスト花B",
+        "status": "咲き始め",
+        "radius_m": 40.0,
+        "date": "2026-04-09",
+        "photo": "https://drive.google.com/thumbnail?id=1gAb6KYLqP6BpJtN4eHRTCjPk8xRiCbzj&sz=w800",
+        "memo": "テスト"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.17154815929703,
+          35.86949000912169,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{b8cd5e99-ce12-4a60-b2f8-0f3745fdeba8}",
+        "name": "テスト花B",
+        "status": "見頃",
+        "radius_m": 40.0,
+        "date": "2026-04-11",
+        "photo": "https://drive.google.com/thumbnail?id=1Q752A0z1Xd7poqJaFec8lK5fOk9pyQE4&sz=w800",
+        "memo": "テスト"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.17856382839062,
+          35.866159662615395,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{25dadb44-ad3d-4e9a-8aaa-c3e89233c445}",
+        "name": "テスト花C",
+        "status": "散り始め",
+        "radius_m": 30.0,
+        "date": "2026-04-14",
+        "photo": "https://drive.google.com/thumbnail?id=1CJ_hIaghND4oT42WedZu2_gw7cYwNMmu&sz=w800",
+        "memo": "テスト"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.16506788360192,
+          35.863190232556676,
+          0.0
+        ]
+      }
     }
   ]
 }

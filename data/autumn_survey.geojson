@@ -27,6 +27,46 @@
           0.0
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{19554bf4-28a1-4bd8-bb3c-e1658e8710e8}",
+        "name": "テスト紅葉A",
+        "status": "青葉",
+        "radius_m": 500.0,
+        "date": "2026-03-29",
+        "photo": "https://drive.google.com/thumbnail?id=1lyvr0XDsVHZstZZ0nS-pqD0pFVqJQr_A&sz=w800",
+        "memo": "テスト"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.15500702660435,
+          35.858698887106485,
+          0.0
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "site_id": "{068a5003-b86c-46cc-8250-82ef2256c797}",
+        "name": "テスト紅葉B",
+        "status": "見頃",
+        "radius_m": 600.0,
+        "date": "2026-04-13",
+        "photo": "https://drive.google.com/thumbnail?id=1To2dj3YZEH-76vuvouLb-dHHypw7HFkq&sz=w800",
+        "memo": "テスト"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          139.1636871272531,
+          35.850956624202134,
+          0.0
+        ]
+      }
     }
   ]
 }
