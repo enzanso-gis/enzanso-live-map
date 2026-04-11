@@ -160,7 +160,7 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
                 if (!bestPosition || accuracy < bestPosition.coords.accuracy) {
                     bestPosition = position;
                 }
-                if (accuracy <= 20) {
+                if (accuracy <= 5) {
                     navigator.geolocation.clearWatch(watchId);
                     clearTimeout(gpsTimeoutId);
                     stopLoadingUI();
