@@ -14,8 +14,8 @@
         "name": "テスト動物",
         "date": "2026-04-10",
         "weather": "曇り",
-        "memo": null,
-        "photo": "https://drive.google.com/thumbnail?id=1XR3A5WV9XL_mxunTHEtQ1q865ZBgwxin&sz=w800"
+        "memo": "テスト",
+        "photo": "https://drive.google.com/thumbnail?id=1XTNPwe-g-jky8xm9LYktBc12vXB_nZ-V&sz=w800"
       },
       "geometry": {
         "type": "Point",
