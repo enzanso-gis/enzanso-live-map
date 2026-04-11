@@ -17,7 +17,7 @@ function toggleMenu() { document.getElementById('ui-panel').classList.toggle('sh
     const startZoom = parseInt(urlParams.get('zoom')) || 18; 
     const startTheme = urlParams.get('theme');
 
-    const targetId = urlParams.get('ID'); 
+    const targetId = urlParams.get('id'); 
     const jumpContainer = document.getElementById('jump-control-container');
     const jumpSelect = document.getElementById('jump-select');
 
