@@ -9,7 +9,7 @@ const THEME_CONFIG = {
 // 場所のマスターデータ
 const JUMP_LOCATIONS = {
     "enzanso": { name: "🏕️ 燕山荘（えんざんそう）", coords: "36.3992, 137.7152, 19" },
-    "ariakeso": { name: "♨️ 有明荘（ありあけそう）", coords: "36.3942, 137.7468, 18" },
+    "ariakeso": { name: "♨️ 有明荘（ありあけそう）", coords: "36.38768, 137.74978, 18" },
     "daitenso": { name: "🏕️ 大天荘（だいてんそう）", coords: "36.3638, 137.7030, 18" },
     "hyuttenisidake": { name: "🏕️ ヒュッテ西岳", coords: "36.3355, 137.6800, 18" },
     "hyutteooyari": { name: "🏕️ ヒュッテ大槍", coords: "36.3378, 137.6550, 18" },
