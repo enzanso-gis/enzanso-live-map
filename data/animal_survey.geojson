@@ -92,6 +92,23 @@
           35.8677160770913
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "雷鳥",
+        "date": "2026-05-01",
+        "weather": "雨",
+        "memo": "周りは濃い霧に包まれていました。",
+        "photo": "https://drive.google.com/thumbnail?id=1C_s03ECrwqQYmTJaJRGZWZkjAG4_Y1fN&sz=w800"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          137.71486788970276,
+          36.39984049666414
+        ]
+      }
     }
   ]
 }
