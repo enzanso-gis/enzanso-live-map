@@ -109,6 +109,23 @@
           36.39984049666414
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "霧氷",
+        "date": "2026-05-02",
+        "weather": "晴れ",
+        "memo": "昨日が雨のためできた霧氷",
+        "photo": "https://drive.google.com/thumbnail?id=1GErTSjGOk1NjRJ8VeFNmVup0XpxfKKXy&sz=w800"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          137.7154128360682,
+          36.39868741674638
+        ]
+      }
     }
   ]
 }
